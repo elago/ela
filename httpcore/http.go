@@ -1,20 +1,20 @@
 package httpcore
 
 import (
-	// "github.com/gogather/com/log"
 	"fmt"
+	"io"
 	"net/http"
 )
 
 func Http(port int) {
-	http.HandleFunc("/", HandleJsonRpc)
-
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
 	if err != nil {
 		fmt.Printf("Tcp Server Start Failed Port [%d]\n%s", port, err)
 	}
 }
 
-func HandleJsonRpc(w http.ResponseWriter, r *http.Request) {
+type ElaHandler struct{}
 
+func (*a) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "connected.")
 }
