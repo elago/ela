@@ -15,6 +15,6 @@ func Http(port int) {
 
 type ElaHandler struct{}
 
-func (*a) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "connected.")
 }
