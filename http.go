@@ -1,8 +1,7 @@
-package httpcore
+package elaeagnus
 
 import (
-	"fmt"
-	"io"
+	"debug"
 	"net/http"
 )
 
@@ -16,5 +15,11 @@ func Http(port int) {
 type ElaHandler struct{}
 
 func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "connected.")
+	path := r.URL.String()
+	debug.Log(path)
+	f := URIMapping[path]
+	if f != nil {
+		function := f.(func())
+		function()
+	}
 }
