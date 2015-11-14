@@ -6,16 +6,14 @@ import (
 )
 
 type Pojo struct {
-	t string
 }
 
-func (this *Pojo) TT() {
+func (this *Pojo) Get() {
 
 }
 
-func init() {
-	u := &Pojo{}
-	value := reflect.ValueOf(u)
+func RegisterModel(model interface{}) {
+	value := reflect.ValueOf(model)
 	typ := value.Type()
 	for i := 0; i < value.NumMethod(); i++ {
 		fmt.Printf("method[%d]%s\n", i, typ.Method(i).Name)
