@@ -1,4 +1,4 @@
-package elaeagnus
+package ela
 
 import (
 	"fmt"

@@ -1,8 +1,8 @@
-package elaeagnus
+package ela
 
 import (
 	"fmt"
-	"github.com/go-elaeagnus/elaeagnus/debug"
+	"github.com/elago/ela/debug"
 	"net/http"
 )
 
