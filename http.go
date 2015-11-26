@@ -9,7 +9,7 @@ import (
 func Http(port int) {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
 	if err != nil {
-		fmt.Printf("Tcp Server Start Failed Port [%d]\n%s", port, err)
+		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)
 	}
 }
 
