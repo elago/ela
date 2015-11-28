@@ -38,5 +38,12 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if f != nil {
 		function := f.(func(RequestContext))
 		function(ctx)
+	} else {
+		// show uri
+		if StaticExist(path) {
+			StaticServ(path, w)
+		} else {
+			http.Error(w, "404, File Not Exist", 404)
+		}
 	}
 }
