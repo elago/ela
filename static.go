@@ -4,6 +4,7 @@ import (
 	"github.com/gogather/com"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -11,18 +12,47 @@ const (
 )
 
 func StaticServ(uri string, writer http.ResponseWriter) {
-	// read file
-	data, err := com.ReadFileByte(staticDirectory + uri)
-	if err == nil {
-		writer.Write([]byte(data))
-	} else {
+	path := filepath.Join(staticDirectory, uri)
+	stat, err := os.Stat(path)
+	if err != nil {
 		// 404
 		http.Error(writer, "404, File Not Exist", 404)
+		return
 	}
+
+	if !stat.IsDir() {
+		// read file
+		data, err := com.ReadFileByte(path)
+		if err == nil {
+			writer.Write([]byte(data))
+		} else {
+			// 404
+			http.Error(writer, "404, File Not Exist", 404)
+			return
+		}
+	} else {
+		path := filepath.Join(path, "index.html")
+		_, err := os.Stat(path)
+		if err != nil {
+			// 404
+			http.Error(writer, "404, File Not Exist", 404)
+			return
+		}
+
+		data, err := com.ReadFileByte(path)
+		if err == nil {
+			writer.Write([]byte(data))
+		} else {
+			// 404
+			http.Error(writer, "404, File Not Exist", 404)
+		}
+	}
+
 }
 
 func StaticExist(uri string) bool {
-	_, err := os.Stat(staticDirectory + uri)
+	path := filepath.Join(staticDirectory, uri)
+	_, err := os.Stat(path)
 	if err != nil {
 		return false
 	} else {
