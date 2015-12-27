@@ -3,6 +3,7 @@ package ela
 import (
 	"fmt"
 	"github.com/elago/ela/debug"
+	"github.com/gogather/com/log"
 	"net/http"
 )
 
@@ -10,6 +11,8 @@ func Http(port int) {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
 	if err != nil {
 		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)
+	} else {
+		log.Blueln("port [%d]", port)
 	}
 }
 
@@ -18,7 +21,7 @@ type ElaHandler struct{}
 
 func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
-	ctx := RequestContext{}
+	ctx := Context{}
 	ctx.w = w
 	ctx.r = r
 	ctx.Data = make(map[string]interface{})
@@ -27,7 +30,7 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	debug.Log(path)
 	f := URIMapping[path]
 	if f != nil {
-		function := f.(func(RequestContext))
+		function := f.(func(Context))
 		function(ctx)
 	} else {
 		// show uri

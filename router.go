@@ -7,6 +7,6 @@ func init() {
 }
 
 // put uri-func mapping into map
-func Router(uri string, f func(RequestContext)) {
+func Router(uri string, f func(Context)) {
 	URIMapping[uri] = f
 }

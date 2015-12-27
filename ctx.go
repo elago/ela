@@ -4,12 +4,12 @@ import (
 	// "github.com/gogather/com/log"
 	"html/template"
 	"net/http"
-	"path/filepath"
+	// "path/filepath"
 	// "os"
 )
 
 // RequestContext
-type RequestContext struct {
+type Context struct {
 	w         http.ResponseWriter
 	r         *http.Request
 	Data      map[string]interface{}
@@ -17,40 +17,48 @@ type RequestContext struct {
 	headerMap map[string]string
 }
 
-func (this *RequestContext) GetResponseWriter() http.ResponseWriter {
+func (this *Context) GetResponseWriter() http.ResponseWriter {
 	return this.w
 }
 
-func (this *RequestContext) GetRequest() *http.Request {
+func (this *Context) GetRequest() *http.Request {
 	return this.r
 }
 
-func (this *RequestContext) SetStatus(status int) {
+func (this *Context) GetMethod() string {
+	return this.r.Method
+}
+
+func (this *Context) SetStatus(status int) {
 	this.status = status
 }
 
-func (this *RequestContext) SetHeader(key, value string) {
+func (this *Context) SetHeader(key, value string) {
 	if this.headerMap == nil {
 		this.headerMap = make(map[string]string)
 	}
 	this.headerMap[key] = value
 }
 
-func (this *RequestContext) Write(content string) (int, error) {
+func (this *Context) Write(content string) (int, error) {
 	this.writeHeader()
 	return this.w.Write([]byte(content))
 }
 
-func (this *RequestContext) ServeTemplate(templateFile string) {
+func (this *Context) ServeTemplate(templateFile string) {
 	this.SetHeader("Content-Type", "text/html")
 	this.writeHeader()
 
-	templateFile = filepath.Join("view", templateFile)
-	t, _ := template.ParseFiles(templateFile)
-	t.Execute(this.w, this.Data)
+	t, err := template.ParseFiles(templatesName...)
+	if err != nil {
+		this.w.WriteHeader(500)
+	} else {
+		t.ExecuteTemplate(this.w, templateFile, this.Data)
+	}
+
 }
 
-func (this *RequestContext) writeHeader() {
+func (this *Context) writeHeader() {
 	for k, v := range this.headerMap {
 		this.r.Header.Set(k, v)
 	}
