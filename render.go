@@ -4,6 +4,9 @@ import (
 	"github.com/gogather/com"
 	"github.com/gogather/com/log"
 	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
 )
 
 var templates map[string]string
@@ -15,10 +18,16 @@ func init() {
 	listFile(templatefolder)
 
 	log.Blueln(templatesName)
+
+	file, _ := exec.LookPath(os.Args[0])
+	path, _ := filepath.Abs(file)
+
+	println(path)
 }
 
 func listFile(dir string) {
 	files, _ := ioutil.ReadDir(dir)
+
 	for _, file := range files {
 		subfile := dir + "/" + file.Name()
 		if file.IsDir() {

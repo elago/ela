@@ -1,7 +1,8 @@
 package ela
 
 import (
-	// "github.com/gogather/com/log"
+	"fmt"
+	"github.com/gogather/com/log"
 	"html/template"
 	"net/http"
 	// "path/filepath"
@@ -49,13 +50,41 @@ func (this *Context) ServeTemplate(templateFile string) {
 	this.SetHeader("Content-Type", "text/html")
 	this.writeHeader()
 
-	t, err := template.ParseFiles(templatesName...)
+	t, err := this.parseFiles(templatesName...)
+
 	if err != nil {
-		this.w.WriteHeader(500)
+		log.Redln(err)
+		// this.w.WriteHeader(500)
 	} else {
-		t.ExecuteTemplate(this.w, templateFile, this.Data)
+		err = t.ExecuteTemplate(this.w, templateFile, this.Data)
+		log.Pinkln(err)
 	}
 
+}
+
+func (this *Context) parseFiles(filenames ...string) (*template.Template, error) {
+	var t *template.Template = nil
+
+	if len(filenames) == 0 {
+		return nil, fmt.Errorf("html/template: no files named in call to ParseFiles")
+	}
+
+	for _, filename := range filenames {
+		var tmpl *template.Template
+		if t == nil {
+			t = template.New(filename)
+		}
+		if filename == t.Name() {
+			tmpl = t
+		} else {
+			tmpl = t.New(filename)
+		}
+		_, err := tmpl.Parse(templates[filename])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return t, nil
 }
 
 func (this *Context) writeHeader() {
