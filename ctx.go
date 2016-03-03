@@ -34,6 +34,10 @@ func (this *Context) SetStatus(status int) {
 	this.status = status
 }
 
+func (this *Context) GetStatus() int {
+	return this.status
+}
+
 func (this *Context) SetHeader(key, value string) {
 	if this.headerMap == nil {
 		this.headerMap = make(map[string]string)
@@ -57,7 +61,7 @@ func (this *Context) ServeTemplate(templateFile string) {
 		// this.w.WriteHeader(500)
 	} else {
 		err = t.ExecuteTemplate(this.w, templateFile, this.Data)
-		log.Pinkln(err)
+		// log.Pinkln(err)
 	}
 
 }

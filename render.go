@@ -2,7 +2,7 @@ package ela
 
 import (
 	"github.com/gogather/com"
-	"github.com/gogather/com/log"
+	// "github.com/gogather/com/log"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -17,7 +17,7 @@ func init() {
 	templatefolder := `view`
 	listFile(templatefolder)
 
-	log.Blueln(templatesName)
+	// log.Blueln(templatesName)
 
 	file, _ := exec.LookPath(os.Args[0])
 	path, _ := filepath.Abs(file)
