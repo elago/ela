@@ -5,8 +5,6 @@ import (
 	"github.com/gogather/com/log"
 	"html/template"
 	"net/http"
-	// "path/filepath"
-	// "os"
 )
 
 // RequestContext
@@ -43,6 +41,15 @@ func (this *Context) SetHeader(key, value string) {
 		this.headerMap = make(map[string]string)
 	}
 	this.headerMap[key] = value
+}
+
+func (this *Context) GetCookie(key string) (*http.Cookie, error) {
+	return this.r.Cookie(key)
+}
+
+func (this *Context) SetCookie(cookie *http.Cookie) {
+	log.Redln(cookie)
+	http.SetCookie(this.w, cookie)
 }
 
 func (this *Context) Write(content string) (int, error) {

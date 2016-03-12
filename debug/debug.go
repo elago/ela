@@ -14,14 +14,16 @@ var STATUS map[int]string
 func init() {
 	STATUS = map[int]string{
 		200: "ok",
-		400: "page could not find",
+		404: "page could not find",
 		500: "server internal error",
 		302: "not modified",
 	}
 }
 
+// type struct{}
+
 func requestPrint(status int, content string) {
-	if status == 400 {
+	if status == 404 {
 		log.Pinkln(content)
 	} else if status == 500 {
 		log.Redln(content)
@@ -38,4 +40,8 @@ func RequestLog(status int, reqType string, method string, path string) {
 	}
 
 	requestPrint(status, "[Ela] ["+reqType+"/"+method+"] "+path+" "+fmt.Sprintf("%d", status)+" "+statusVal)
+}
+
+func StartRequestLog(msg string) {
+	log.Println("[Ela] " + msg)
 }

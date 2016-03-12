@@ -3,7 +3,6 @@ package ela
 import (
 	"fmt"
 	"github.com/elago/ela/debug"
-	// "github.com/gogather/com/log"
 	"net/http"
 )
 
@@ -11,8 +10,6 @@ func Http(port int) {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
 	if err != nil {
 		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)
-	} else {
-		// log.Blueln("port [%d]", port)
 	}
 }
 
@@ -29,6 +26,8 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// parse router and call action
 	path := r.URL.String()
 
+	debug.StartRequestLog("starting get page " + path)
+
 	f := URIMapping[path]
 	if f != nil {
 		function := f.(func(Context))
@@ -39,7 +38,7 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if StaticExist(path) {
 			StaticServ(path, w, r)
 		} else {
-			ctx.SetStatus(400)
+			ctx.SetStatus(404)
 			http.Error(w, "404, File Not Exist", 404)
 			debug.RequestLog(ctx.GetStatus(), "404", r.Method, path)
 		}
