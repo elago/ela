@@ -54,11 +54,10 @@ func (this *Session) Get(sid string, key string) (interface{}, error) {
 }
 
 func (this *Session) Set(sid string, key string, value interface{}) error {
-	mapObject, err := this.getSessionObject(sid)
-	if err != nil {
-		return err
+	mapObject, _ := this.getSessionObject(sid)
+	if mapObject == nil {
+		mapObject = map[string]interface{}{}
 	}
-
 	mapObject[key] = value
 	return this.saveSession(sid, mapObject)
 }
