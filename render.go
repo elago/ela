@@ -25,7 +25,12 @@ func init() {
 	println(path)
 }
 
+func ReloadTemplate() {
+	listFile(templatefolder)
+}
+
 func listFile(dir string) {
+	templatesName = nil
 	files, _ := ioutil.ReadDir(dir)
 	for _, file := range files {
 		subfile := dir + "/" + file.Name()

@@ -61,6 +61,8 @@ func (this *Context) ServeTemplate(templateFile string) {
 	this.SetHeader("Content-Type", "text/html")
 	this.writeHeader()
 
+	ReloadTemplate() // TODO: if in debug mode, reload templates
+
 	t, err := this.parseFiles(templatesName...)
 
 	if err != nil {
