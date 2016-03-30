@@ -56,7 +56,7 @@ func (this *Config) parseItems() {
 	for i := 0; i < count; i++ {
 		item := this.rawArrayContainer[i]
 		item = strings.TrimSpace(item)
-		hasEqualMark, err1 := regexp.Match("=", []byte(item))
+		hasEqualMark, err1 := regexp.Match(`=`, []byte(item))
 		hasSectionMark, err2 := regexp.Match(`\[[\d\D][^\[\]]+]$`, []byte(item))
 
 		switch {
@@ -64,10 +64,13 @@ func (this *Config) parseItems() {
 			//empty line, skip
 		case hasEqualMark && (err1 == nil):
 			//normal key value item
-			kvArray := strings.Split(item, "=")
-			key := strings.TrimSpace(kvArray[0])
-			value := strings.TrimSpace(kvArray[1])
-			this.conf[currentSection][key] = this.parseValue(value)
+			reg := regexp.MustCompile(`([\d\D][^=]+)=([\d\D]+)$`)
+			kvArray := reg.FindSubmatch([]byte(item))
+			if len(kvArray) > 2 {
+				key := strings.TrimSpace(string(kvArray[1]))
+				value := strings.TrimSpace(string(kvArray[2]))
+				this.conf[currentSection][key] = this.parseValue(value)
+			}
 		case hasSectionMark && (err2 == nil):
 			// section mark line
 			reg := regexp.MustCompile(`\[([\d\D][^\[\]]+)]$`)

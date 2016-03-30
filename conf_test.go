@@ -40,10 +40,15 @@ func TestConfig(t *testing.T) {
 			log.Greenln("warning stack")
 			log.Pinkln("==============")
 			log.Blueln(conf.GetWarnings())
+
+			log.Greenln("mistake value")
+			log.Pinkln("==============")
+			log.Blueln(conf.GetString("mysql", "host"))
 		}
 
 		So(conf.Get("_", "port"), ShouldEqual, 80)
 		So(conf.GetString("_", "appname"), ShouldEqual, "my application")
 		So(conf.GetString("mysql", "password"), ShouldEqual, "liju#n")
+		So(conf.GetString("mysql", "host"), ShouldEqual, `"192.168.1.11" = GHJ`)
 	})
 }
