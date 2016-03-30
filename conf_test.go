@@ -35,6 +35,15 @@ func TestConfig(t *testing.T) {
 
 			log.Greenln("parse items")
 			log.Pinkln("==============")
+			conf.parseItems()
+
+			log.Greenln("warning stack")
+			log.Pinkln("==============")
+			log.Blueln(conf.GetWarnings())
 		}
+
+		So(conf.Get("_", "port"), ShouldEqual, 80)
+		So(conf.GetString("_", "appname"), ShouldEqual, "my application")
+		So(conf.GetString("mysql", "password"), ShouldEqual, "liju#n")
 	})
 }
