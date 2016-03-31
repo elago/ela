@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogather/com"
 	// "github.com/gogather/com/log"
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -164,34 +165,120 @@ func (this *Config) GetWarnings() []string {
 	return this.warning
 }
 
-func (this *Config) Get(section, key string) interface{} {
-	return this.conf[section][key]
+func (this *Config) Get(section, key string) (interface{}, error) {
+	sectionMap, ok := this.conf[section]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("section %s not exist", section))
+	}
+
+	value, ok := sectionMap[key]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("key %s in section %s not exist", key, section))
+	}
+
+	return value, nil
 }
 
-func (this *Config) GetBool(section, key string) bool {
-	value, ok := this.Get(section, key).(bool)
+func (this *Config) GetBool(section, key string) (bool, error) {
+	value, err := this.Get(section, key)
+	if err != nil {
+		return false, err
+	}
+
+	valueBool, ok := value.(bool)
 	if !ok {
-		valueString, ok := this.Get(section, key).(string)
-		if ok && strings.ToLower(valueString) == "true" {
-			return true
+		valueString, ok := value.(string)
+		if ok {
+			if strings.ToLower(valueString) == "true" {
+				return true, nil
+			} else {
+				return false, nil
+			}
+
 		} else {
-			return false
+			return false, errors.New("value not bool type")
 		}
+	} else {
+		return valueBool, nil
+	}
+}
+
+func (this *Config) GetInt(section, key string) (int64, error) {
+	value, err := this.Get(section, key)
+	if err != nil {
+		return 0, err
+	}
+
+	valueInt, ok := value.(int64)
+	if ok {
+		return valueInt, nil
+	} else {
+		return 0, errors.New("value not int type")
+	}
+}
+
+func (this *Config) GetFloat(section, key string) (float64, error) {
+	value, err := this.Get(section, key)
+	if err != nil {
+		return 0, err
+	}
+
+	valueFloat, ok := value.(float64)
+	if ok {
+		return valueFloat, nil
+	} else {
+		return 0, errors.New("value not float type")
+	}
+}
+
+func (this *Config) GetString(section, key string) (string, error) {
+	value, err := this.Get(section, key)
+	if err != nil {
+		return "", err
+	}
+
+	valueString, ok := value.(string)
+	if ok {
+		return valueString, nil
+	} else {
+		return "", errors.New("value not string type")
+	}
+}
+
+func (this *Config) GetBoolDefault(section, key string, defaultValue bool) bool {
+	value, err := this.GetBool(section, key)
+	if err != nil {
+		return defaultValue
 	} else {
 		return value
 	}
 }
 
-func (this *Config) GetInt(section, key string) int64 {
-	return this.Get(section, key).(int64)
+func (this *Config) GetIntDefault(section, key string, defaultValue int64) int64 {
+	value, err := this.GetInt(section, key)
+	if err != nil {
+		return defaultValue
+	} else {
+		return value
+	}
 }
 
-func (this *Config) GetFloat(section, key string) float64 {
-	return this.Get(section, key).(float64)
+func (this *Config) GetFloatDefault(section, key string, defaultValue float64) float64 {
+	value, err := this.GetFloat(section, key)
+	if err != nil {
+		return defaultValue
+	} else {
+		return value
+	}
 }
 
-func (this *Config) GetString(section, key string) string {
-	return this.Get(section, key).(string)
+func (this *Config) GetStringDefault(section, key string, defaultValue string) string {
+	value, err := this.GetString(section, key)
+	if err != nil {
+		return defaultValue
+	} else {
+		return value
+	}
 }
 
 func (this *Config) set(section, key string, value interface{}) {

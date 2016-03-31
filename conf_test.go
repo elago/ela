@@ -48,7 +48,7 @@ func TestConfig(t *testing.T) {
 			log.Greenln("about bool")
 			log.Pinkln("==============")
 			conf.SetBool("test", "dev", true)
-			dev := conf.GetBool("_", "dev")
+			dev, _ := conf.GetBool("_", "dev")
 			log.Blueln("%v", dev)
 
 			content = conf.serialize()
@@ -58,7 +58,15 @@ func TestConfig(t *testing.T) {
 
 			log.Greenln("hex")
 			log.Pinkln("==============")
-			log.Blueln(conf.GetInt("_", "hex"))
+			hex, _ := conf.GetInt("_", "hex")
+			log.Blueln(hex)
+
+			log.Greenln("get empty")
+			log.Pinkln("==============")
+			_, err = conf.GetInt("_", "heloo")
+			if err != nil {
+				log.Blueln(err)
+			}
 
 			log.Greenln("save config file")
 			log.Pinkln("==============")
@@ -69,12 +77,28 @@ func TestConfig(t *testing.T) {
 
 		}
 
-		So(conf.Get("_", "port"), ShouldEqual, 80)
-		So(conf.GetString("_", "appname"), ShouldEqual, "my application")
-		So(conf.GetString("mysql", "password"), ShouldEqual, "liju#n")
-		So(conf.GetString("mysql", "host"), ShouldEqual, `"192.168.1.11" = GHJ`)
-		So(conf.GetBool("_", "dev"), ShouldEqual, true)
-		So(conf.GetFloat("_", "pi"), ShouldEqual, 3.14)
-		So(conf.GetInt("_", "hex"), ShouldEqual, 0x24)
+		val1, _ := conf.Get("_", "port")
+		So(val1, ShouldEqual, 80)
+
+		val2, _ := conf.GetString("_", "appname")
+		So(val2, ShouldEqual, "my application")
+
+		val3, _ := conf.GetString("mysql", "password")
+		So(val3, ShouldEqual, "liju#n")
+
+		val4, _ := conf.GetString("mysql", "host")
+		So(val4, ShouldEqual, `"192.168.1.11" = GHJ`)
+
+		val5, _ := conf.GetBool("_", "dev")
+		So(val5, ShouldEqual, true)
+
+		val6, _ := conf.GetFloat("_", "pi")
+		So(val6, ShouldEqual, 3.14)
+
+		val7, _ := conf.GetInt("_", "hex")
+		So(val7, ShouldEqual, 0x24)
+
+		val8 := conf.GetIntDefault("section", "key", 100)
+		So(val8, ShouldEqual, 100)
 	})
 }
