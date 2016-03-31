@@ -40,7 +40,6 @@ func (this *Config) filterComment() string {
 
 // split lines into array
 func (this *Config) arraylize() []string {
-
 	this.rawArrayContainer = strings.Split(this.content, "\n")
 	return this.rawArrayContainer
 }
@@ -218,4 +217,13 @@ func (this *Config) SetFloat(section, key string, value float64) {
 
 func (this *Config) SetString(section, key string, value string) {
 	this.set(section, key, value)
+}
+
+func (this *Config) Save(path string) error {
+	content := this.serialize()
+	this.rawContent = content
+	this.path = path
+	this.content = content
+	this.arraylize()
+	return com.WriteFileWithCreatePath(path, this.content)
 }

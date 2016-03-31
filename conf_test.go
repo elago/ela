@@ -60,6 +60,13 @@ func TestConfig(t *testing.T) {
 			log.Pinkln("==============")
 			log.Blueln(conf.GetInt("_", "hex"))
 
+			log.Greenln("save config file")
+			log.Pinkln("==============")
+			err := conf.Save("tmp/test.ini")
+			if err == nil {
+				log.Blueln("done!")
+			}
+
 		}
 
 		So(conf.Get("_", "port"), ShouldEqual, 80)
