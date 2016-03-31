@@ -44,11 +44,30 @@ func TestConfig(t *testing.T) {
 			log.Greenln("mistake value")
 			log.Pinkln("==============")
 			log.Blueln(conf.GetString("mysql", "host"))
+
+			log.Greenln("about bool")
+			log.Pinkln("==============")
+			conf.SetBool("test", "dev", true)
+			dev := conf.GetBool("_", "dev")
+			log.Blueln("%v", dev)
+
+			content = conf.serialize()
+			log.Greenln("serialize value")
+			log.Pinkln("==============")
+			log.Blueln(content)
+
+			log.Greenln("hex")
+			log.Pinkln("==============")
+			log.Blueln(conf.GetInt("_", "hex"))
+
 		}
 
 		So(conf.Get("_", "port"), ShouldEqual, 80)
 		So(conf.GetString("_", "appname"), ShouldEqual, "my application")
 		So(conf.GetString("mysql", "password"), ShouldEqual, "liju#n")
 		So(conf.GetString("mysql", "host"), ShouldEqual, `"192.168.1.11" = GHJ`)
+		So(conf.GetBool("_", "dev"), ShouldEqual, true)
+		So(conf.GetFloat("_", "pi"), ShouldEqual, 3.14)
+		So(conf.GetInt("_", "hex"), ShouldEqual, 0x24)
 	})
 }

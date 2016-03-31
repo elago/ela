@@ -126,6 +126,41 @@ func (this *Config) parseIniFile() (map[string]map[string]interface{}, error) {
 	}
 }
 
+// serialize config as ini file
+func (this *Config) serialize() string {
+	sectionContentMap := map[string]string{}
+	content := ""
+	for section, val := range this.conf {
+		if section == "_" {
+			sectionMap := val
+			sectionContent := ""
+			for key, value := range sectionMap {
+				sectionContent = sectionContent + fmt.Sprintf("%s = %v\n", key, value)
+			}
+			sectionContentMap["_"] = sectionContent
+		} else {
+			// section title
+			title := "\n[" + section + "]\n"
+			sectionMap := val
+			sectionContent := ""
+			for key, value := range sectionMap {
+				sectionContent = sectionContent + fmt.Sprintf("%s = %v\n", key, value)
+			}
+			sectionContentMap[section] = title + sectionContent
+		}
+	}
+
+	for section, sectionVal := range sectionContentMap {
+		if section == "_" {
+			content = sectionVal + content
+		} else {
+			content = content + sectionVal
+		}
+	}
+
+	return content
+}
+
 func (this *Config) GetWarnings() []string {
 	return this.warning
 }
@@ -135,7 +170,17 @@ func (this *Config) Get(section, key string) interface{} {
 }
 
 func (this *Config) GetBool(section, key string) bool {
-	return this.Get(section, key).(bool)
+	value, ok := this.Get(section, key).(bool)
+	if !ok {
+		valueString, ok := this.Get(section, key).(string)
+		if ok && strings.ToLower(valueString) == "true" {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return value
+	}
 }
 
 func (this *Config) GetInt(section, key string) int64 {
@@ -148,4 +193,29 @@ func (this *Config) GetFloat(section, key string) float64 {
 
 func (this *Config) GetString(section, key string) string {
 	return this.Get(section, key).(string)
+}
+
+func (this *Config) set(section, key string, value interface{}) {
+	sectionMap, ok := this.conf[section]
+	if !ok {
+		sectionMap = map[string]interface{}{}
+	}
+	sectionMap[key] = value
+	this.conf[section] = sectionMap
+}
+
+func (this *Config) SetInt(section, key string, value int64) {
+	this.set(section, key, value)
+}
+
+func (this *Config) SetBool(section, key string, value bool) {
+	this.set(section, key, value)
+}
+
+func (this *Config) SetFloat(section, key string, value float64) {
+	this.set(section, key, value)
+}
+
+func (this *Config) SetString(section, key string, value string) {
+	this.set(section, key, value)
 }
