@@ -9,14 +9,14 @@ import (
 
 // RequestContext
 type Context struct {
-	w         http.ResponseWriter
+	w         ResponseWriter
 	r         *http.Request
 	Data      map[string]interface{}
 	status    int
 	headerMap map[string]string
 }
 
-func (this *Context) GetResponseWriter() http.ResponseWriter {
+func (this *Context) GetResponseWriter() ResponseWriter {
 	return this.w
 }
 

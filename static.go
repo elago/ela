@@ -2,6 +2,7 @@ package ela
 
 import (
 	"github.com/elago/ela/debug"
+	"github.com/gogather/com/log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -51,6 +52,8 @@ func servPath(path string, writer http.ResponseWriter, request *http.Request) {
 		}
 
 		http.ServeContent(writer, request, path, fi.ModTime(), f)
+		// debug.RequestLog(writer.Header().Get("status"), "static", request.Method, path)
+		log.Blueln(writer.(ResponseWriter).Status())
 	}
 }
 

@@ -19,7 +19,7 @@ type ElaHandler struct{}
 func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
 	ctx := Context{}
-	ctx.w = w
+	ctx.w = NewResponseWriter(w)
 	ctx.r = r
 	ctx.Data = make(map[string]interface{})
 	ctx.SetStatus(200)
@@ -36,10 +36,10 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// show uri
 		if StaticExist(path) {
-			StaticServ(path, w, r)
+			StaticServ(path, ctx.w, r)
 		} else {
 			ctx.SetStatus(404)
-			http.Error(w, "404, File Not Exist", 404)
+			http.Error(ctx.w, "404, File Not Exist", 404)
 			debug.RequestLog(ctx.GetStatus(), "404", r.Method, path)
 		}
 	}
