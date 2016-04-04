@@ -32,6 +32,16 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	f := URIMapping[path]
 	if f != nil {
 		function := f.(func(Context))
+
+		defer func() {
+			if r := recover(); r != nil {
+				log.Redf("%v\n", r)
+				ctx.SetStatus(500)
+				ctx.Write("500 Server Internal Error!")
+				responseLog(ctx)
+			}
+		}()
+
 		function(ctx)
 	} else {
 		// show uri
