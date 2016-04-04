@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gogather/com/log"
 	"net/http"
+	"runtime/debug"
 )
 
 func ServHttp(port int) {
@@ -35,9 +36,12 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		defer func() {
 			if r := recover(); r != nil {
-				log.Redf("%v\n", r)
+				stack := string(debug.Stack())
+				content := "500 Server Internal Error!\n\n" + stack
+				log.Redln(r)
+				log.Yellowln(stack)
 				ctx.SetStatus(500)
-				ctx.Write("500 Server Internal Error!")
+				ctx.Write(content)
 				responseLog(ctx)
 			}
 		}()
