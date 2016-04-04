@@ -23,7 +23,7 @@ func StaticServ(uri string, writer http.ResponseWriter, request *http.Request) {
 		// read file
 		servPath(path, writer, request)
 	} else {
-		path := filepath.Join(path, "index.html")
+		path = path + "/index.html"
 		servPath(path, writer, request)
 	}
 
