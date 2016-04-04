@@ -2,7 +2,6 @@ package ela
 
 import (
 	"fmt"
-	"github.com/elago/ela/debug"
 	"net/http"
 )
 
@@ -26,13 +25,12 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// parse router and call action
 	path := r.URL.String()
 
-	debug.StartRequestLog("starting get page " + path)
+	requestLog(ctx)
 
 	f := URIMapping[path]
 	if f != nil {
 		function := f.(func(Context))
 		function(ctx)
-		debug.RequestLog(ctx.GetStatus(), "action", r.Method, path)
 	} else {
 		// show uri
 		if StaticExist(path) {
@@ -40,7 +38,8 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			ctx.SetStatus(404)
 			http.Error(ctx.w, "404, File Not Exist", 404)
-			debug.RequestLog(ctx.GetStatus(), "404", r.Method, path)
 		}
 	}
+
+	responseLog(ctx)
 }

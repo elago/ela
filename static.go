@@ -1,8 +1,6 @@
 package ela
 
 import (
-	"github.com/elago/ela/debug"
-	"github.com/gogather/com/log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,7 +15,6 @@ func StaticServ(uri string, writer http.ResponseWriter, request *http.Request) {
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
 		// 404
-		debug.RequestLog(404, "static", request.Method, path)
 		http.Error(writer, "404, File Not Exist", 404)
 		return
 	}
@@ -38,7 +35,6 @@ func servPath(path string, writer http.ResponseWriter, request *http.Request) {
 
 	if err != nil {
 		// 404
-		debug.RequestLog(404, "static", request.Method, path)
 		http.Error(writer, "404, File Not Exist", 404)
 		return
 	} else {
@@ -46,14 +42,11 @@ func servPath(path string, writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			// File exists but fail to open.
 			// 404
-			debug.RequestLog(404, "static", request.Method, path)
 			http.Error(writer, "404, File Not Exist", 404)
 			return
 		}
 
 		http.ServeContent(writer, request, path, fi.ModTime(), f)
-		// debug.RequestLog(writer.Header().Get("status"), "static", request.Method, path)
-		log.Blueln(writer.(ResponseWriter).Status())
 	}
 }
 
