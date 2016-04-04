@@ -2,10 +2,12 @@ package ela
 
 import (
 	"fmt"
+	"github.com/gogather/com/log"
 	"net/http"
 )
 
-func Http(port int) {
+func ServHttp(port int) {
+	log.Pinkf("[ela] Listen Port %d\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
 	if err != nil {
 		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)

@@ -2,7 +2,6 @@ package ela
 
 import (
 	"github.com/gogather/com/log"
-	// "net/http"
 	"time"
 )
 

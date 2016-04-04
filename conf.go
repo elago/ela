@@ -25,6 +25,11 @@ func NewConfig(path string) Config {
 	return conf
 }
 
+func (this *Config) ReloadConfig(path string) {
+	this.path = path
+	this.parseIniFile()
+}
+
 func (this *Config) readConfigFile() (string, error) {
 	rawContent, err := com.ReadFileString(this.path)
 	this.rawContent = rawContent
