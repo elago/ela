@@ -11,7 +11,7 @@ const (
 )
 
 func StaticServ(uri string, writer http.ResponseWriter, request *http.Request) {
-	path := filepath.Join(uri)
+	path := uri
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
 		// 404
