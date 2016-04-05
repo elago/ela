@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/gogather/com/log"
 	"net/http"
+	"regexp"
 	"runtime"
+	"strings"
 )
 
 func ServHttp(port int) {
@@ -25,10 +27,31 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx.r = r
 	ctx.Data = make(map[string]interface{})
 	ctx.SetStatus(200)
+
 	// parse router and call action
 	path := r.URL.String()
 
+	// recording request log
 	requestLog(ctx)
+
+	staticAlias, errDefault := config.GetString("static", "alias")
+	// if static-alias exist, using alias uri mode
+	if errDefault == nil {
+		if strings.HasPrefix(path, "/"+staticAlias) {
+			reg := regexp.MustCompile(`^/` + staticAlias)
+			rpath := reg.ReplaceAllString(path, "")
+			path = reg.ReplaceAllString(path, "/"+staticDirectory)
+
+			log.Blueln(rpath)
+
+			if StaticExist(rpath) {
+				StaticServ(rpath, ctx.w, r)
+			} else {
+				ctx.SetStatus(404)
+				http.Error(ctx.w, "404, File Not Exist", 404)
+			}
+		}
+	}
 
 	f := URIMapping[path]
 	if f != nil {
@@ -55,9 +78,10 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
+		// excute controller
 		function(ctx)
-	} else {
-		// show uri
+	} else if errDefault != nil {
+		// if static-alias does not exist, using default mode
 		if StaticExist(path) {
 			StaticServ(path, ctx.w, r)
 		} else {
@@ -66,5 +90,6 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// recording response log
 	responseLog(ctx)
 }

@@ -6,9 +6,13 @@ import (
 	"path/filepath"
 )
 
-const (
+var (
 	staticDirectory = "static"
 )
+
+func init() {
+	staticDirectory = config.GetStringDefault("static", "path", "static")
+}
 
 func StaticServ(uri string, writer http.ResponseWriter, request *http.Request) {
 	path := uri
