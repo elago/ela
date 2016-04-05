@@ -41,7 +41,7 @@ func listFile(dir string) {
 			if err != nil {
 				templates[subfile] = ""
 			} else {
-				content = "{{define \"" + subfile + "\"}}\n" + content + "\n{{end}}"
+				content = "{{define \"" + subfile + "\"}}" + content + "{{end}}"
 				content = lefTplDir(content, templatefolder)
 				subfile = lefTplDir(subfile, templatefolder)
 				templates[subfile] = content

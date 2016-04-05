@@ -53,15 +53,16 @@ func (this *Context) SetCookie(cookie *http.Cookie) {
 }
 
 func (this *Context) Write(content string) (int, error) {
-	this.writeHeader()
+	for k, v := range this.headerMap {
+		this.r.Header.Set(k, v)
+	}
 	return this.w.Write([]byte(content))
 }
 
 func (this *Context) ServeTemplate(templateFile string) {
 	this.SetHeader("Content-Type", "text/html")
-	this.writeHeader()
 
-	// TODO: if in debug mode, reload templates
+	// if in debug mode, reload templates
 	if config.GetStringDefault("_", "mode", "dev") == "dev" {
 		reloadTemplate()
 	}
@@ -69,11 +70,14 @@ func (this *Context) ServeTemplate(templateFile string) {
 	t, err := this.parseFiles(templatesName...)
 
 	if err != nil {
-		log.Redln(err)
-		// this.w.WriteHeader(500)
+		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
+		this.SetStatus(500)
+		this.Write(content)
 	} else {
 		err = t.ExecuteTemplate(this.w, templateFile, this.Data)
-		// log.Pinkln(err)
+		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
+		this.SetStatus(500)
+		this.Write(content)
 	}
 
 }
@@ -101,11 +105,4 @@ func (this *Context) parseFiles(filenames ...string) (*template.Template, error)
 		}
 	}
 	return t, nil
-}
-
-func (this *Context) writeHeader() {
-	for k, v := range this.headerMap {
-		this.r.Header.Set(k, v)
-	}
-	this.w.WriteHeader(this.status)
 }
