@@ -34,6 +34,27 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// recording request log
 	requestLog(ctx)
 
+	// add special static files
+	addSpecialStatic("/favicon.ico")
+	addSpecialStatic("/robots.txt")
+
+	// deal with special static files
+	for i := 0; i < len(specialStatic); i++ {
+		special := specialStatic[i]
+		if path == special {
+			if StaticExist(path) {
+				StaticServ(path, ctx.w, r)
+			} else {
+				ctx.SetStatus(404)
+				http.Error(ctx.w, "404, File Not Exist", 404)
+			}
+
+			// recording response log
+			responseLog(ctx)
+			return
+		}
+	}
+
 	staticAlias, errDefault := config.GetString("static", "alias")
 	// if static-alias exist, using alias uri mode
 	if errDefault == nil {
@@ -41,8 +62,6 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			reg := regexp.MustCompile(`^/` + staticAlias)
 			rpath := reg.ReplaceAllString(path, "")
 			path = reg.ReplaceAllString(path, "/"+staticDirectory)
-
-			log.Blueln(rpath)
 
 			if StaticExist(rpath) {
 				StaticServ(rpath, ctx.w, r)

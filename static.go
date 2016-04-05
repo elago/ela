@@ -8,6 +8,7 @@ import (
 
 var (
 	staticDirectory = "static"
+	specialStatic   []string
 )
 
 func init() {
@@ -62,6 +63,11 @@ func StaticExist(uri string) bool {
 	} else {
 		return true
 	}
+}
+
+// add special static files into list
+func addSpecialStatic(path string) {
+	specialStatic = append(specialStatic, path)
 }
 
 // staticFileSystem implements http.FileSystem interface.
