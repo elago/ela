@@ -63,7 +63,7 @@ func (this *Context) ServeTemplate(templateFile string) {
 
 	// TODO: if in debug mode, reload templates
 	if config.GetStringDefault("_", "mode", "dev") == "dev" {
-		ReloadTemplate()
+		reloadTemplate()
 	}
 
 	t, err := this.parseFiles(templatesName...)

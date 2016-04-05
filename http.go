@@ -9,18 +9,18 @@ import (
 	"strings"
 )
 
-func ServHttp(port int) {
+func servHttp(port int) {
 	log.Pinkf("[ela] Listen Port %d\n", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &ElaHandler{})
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &elaHandler{})
 	if err != nil {
 		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)
 	}
 }
 
 // Http handler
-type ElaHandler struct{}
+type elaHandler struct{}
 
-func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
 	ctx := Context{}
 	ctx.w = NewResponseWriter(w)
@@ -42,8 +42,8 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(specialStatic); i++ {
 		special := specialStatic[i]
 		if path == special {
-			if StaticExist(path) {
-				StaticServ(path, ctx.w, r)
+			if staticExist(path) {
+				staticServ(path, ctx.w, r)
 			} else {
 				ctx.SetStatus(404)
 				http.Error(ctx.w, "404, File Not Exist", 404)
@@ -63,8 +63,8 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			rpath := reg.ReplaceAllString(path, "")
 			path = reg.ReplaceAllString(path, "/"+staticDirectory)
 
-			if StaticExist(rpath) {
-				StaticServ(rpath, ctx.w, r)
+			if staticExist(rpath) {
+				staticServ(rpath, ctx.w, r)
 			} else {
 				ctx.SetStatus(404)
 				http.Error(ctx.w, "404, File Not Exist", 404)
@@ -72,7 +72,7 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	f := URIMapping[path]
+	f := uriMapping[path]
 	if f != nil {
 		function := f.(func(Context))
 
@@ -101,8 +101,8 @@ func (*ElaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		function(ctx)
 	} else if errDefault != nil {
 		// if static-alias does not exist, using default mode
-		if StaticExist(path) {
-			StaticServ(path, ctx.w, r)
+		if staticExist(path) {
+			staticServ(path, ctx.w, r)
 		} else {
 			ctx.SetStatus(404)
 			http.Error(ctx.w, "404, File Not Exist", 404)

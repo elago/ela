@@ -25,7 +25,7 @@ func init() {
 	println(path)
 }
 
-func ReloadTemplate() {
+func reloadTemplate() {
 	listFile(templatefolder)
 }
 
@@ -53,8 +53,4 @@ func listFile(dir string) {
 
 func lefTplDir(dir string, tplDir string) string {
 	return strings.Replace(dir, tplDir+"/", "", 1)
-}
-
-func Render() {
-
 }
