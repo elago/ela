@@ -25,41 +25,41 @@ func NewConfig(path string) Config {
 	return conf
 }
 
-func (this *Config) ReloadConfig(path string) {
-	this.path = path
-	this.parseIniFile()
+func (cfg *Config) ReloadConfig(path string) {
+	cfg.path = path
+	cfg.parseIniFile()
 }
 
-func (this *Config) readConfigFile() (string, error) {
-	rawContent, err := com.ReadFileString(this.path)
-	this.rawContent = rawContent
-	return this.rawContent, err
+func (cfg *Config) readConfigFile() (string, error) {
+	rawContent, err := com.ReadFileString(cfg.path)
+	cfg.rawContent = rawContent
+	return cfg.rawContent, err
 }
 
 // filter the code comment
-func (this *Config) filterComment() string {
+func (cfg *Config) filterComment() string {
 	reg := regexp.MustCompile(`#[\d\D][^\n#]*\n`)
 	rep := []byte("\n")
-	this.content = string(reg.ReplaceAll([]byte(this.rawContent), rep))
-	return this.content
+	cfg.content = string(reg.ReplaceAll([]byte(cfg.rawContent), rep))
+	return cfg.content
 }
 
 // split lines into array
-func (this *Config) arraylize() []string {
-	this.rawArrayContainer = strings.Split(this.content, "\n")
-	return this.rawArrayContainer
+func (cfg *Config) arraylize() []string {
+	cfg.rawArrayContainer = strings.Split(cfg.content, "\n")
+	return cfg.rawArrayContainer
 }
 
 // parse array items as config items
-func (this *Config) parseItems() {
-	count := len(this.rawArrayContainer)
-	this.conf = map[string]map[string]interface{}{}
-	this.conf["_"] = map[string]interface{}{}
-	this.warning = nil
+func (cfg *Config) parseItems() {
+	count := len(cfg.rawArrayContainer)
+	cfg.conf = map[string]map[string]interface{}{}
+	cfg.conf["_"] = map[string]interface{}{}
+	cfg.warning = nil
 
 	currentSection := "_"
 	for i := 0; i < count; i++ {
-		item := this.rawArrayContainer[i]
+		item := cfg.rawArrayContainer[i]
 		item = strings.TrimSpace(item)
 		hasEqualMark, err1 := regexp.Match(`=`, []byte(item))
 		hasSectionMark, err2 := regexp.Match(`\[[\d\D][^\[\]]+]$`, []byte(item))
@@ -74,7 +74,7 @@ func (this *Config) parseItems() {
 			if len(kvArray) > 2 {
 				key := strings.TrimSpace(string(kvArray[1]))
 				value := strings.TrimSpace(string(kvArray[2]))
-				this.conf[currentSection][key] = this.parseValue(value)
+				cfg.conf[currentSection][key] = cfg.parseValue(value)
 			}
 		case hasSectionMark && (err2 == nil):
 			// section mark line
@@ -82,17 +82,17 @@ func (this *Config) parseItems() {
 			result := reg.FindSubmatch([]byte(item))
 			if len(result) > 1 {
 				currentSection = string(result[1])
-				this.conf[currentSection] = map[string]interface{}{}
+				cfg.conf[currentSection] = map[string]interface{}{}
 			}
 		default:
-			this.warning = append(this.warning, fmt.Sprintf("INI file SyntaxError in Line %d", i+1))
+			cfg.warning = append(cfg.warning, fmt.Sprintf("INI file SyntaxError in Line %d", i+1))
 		}
 
 	}
 }
 
 // parse value
-func (this *Config) parseValue(content string) interface{} {
+func (cfg *Config) parseValue(content string) interface{} {
 	reg := regexp.MustCompile(`\"([\d\D][^\"]+)"$`)
 	result := reg.FindSubmatch([]byte(content))
 
@@ -119,23 +119,23 @@ func (this *Config) parseValue(content string) interface{} {
 }
 
 // parse ini file
-func (this *Config) parseIniFile() (map[string]map[string]interface{}, error) {
-	_, err := this.readConfigFile()
+func (cfg *Config) parseIniFile() (map[string]map[string]interface{}, error) {
+	_, err := cfg.readConfigFile()
 	if err != nil {
 		return nil, err
 	} else {
-		this.filterComment()
-		this.arraylize()
-		this.parseItems()
-		return this.conf, nil
+		cfg.filterComment()
+		cfg.arraylize()
+		cfg.parseItems()
+		return cfg.conf, nil
 	}
 }
 
 // serialize config as ini file
-func (this *Config) serialize() string {
+func (cfg *Config) serialize() string {
 	sectionContentMap := map[string]string{}
 	content := ""
-	for section, val := range this.conf {
+	for section, val := range cfg.conf {
 		if section == "_" {
 			sectionMap := val
 			sectionContent := ""
@@ -166,12 +166,12 @@ func (this *Config) serialize() string {
 	return content
 }
 
-func (this *Config) GetWarnings() []string {
-	return this.warning
+func (cfg *Config) GetWarnings() []string {
+	return cfg.warning
 }
 
-func (this *Config) Get(section, key string) (interface{}, error) {
-	sectionMap, ok := this.conf[section]
+func (cfg *Config) Get(section, key string) (interface{}, error) {
+	sectionMap, ok := cfg.conf[section]
 	if !ok {
 		return nil, errors.New(fmt.Sprintf("section %s not exist", section))
 	}
@@ -184,8 +184,8 @@ func (this *Config) Get(section, key string) (interface{}, error) {
 	return value, nil
 }
 
-func (this *Config) GetBool(section, key string) (bool, error) {
-	value, err := this.Get(section, key)
+func (cfg *Config) GetBool(section, key string) (bool, error) {
+	value, err := cfg.Get(section, key)
 	if err != nil {
 		return false, err
 	}
@@ -208,8 +208,8 @@ func (this *Config) GetBool(section, key string) (bool, error) {
 	}
 }
 
-func (this *Config) GetInt(section, key string) (int64, error) {
-	value, err := this.Get(section, key)
+func (cfg *Config) GetInt(section, key string) (int64, error) {
+	value, err := cfg.Get(section, key)
 	if err != nil {
 		return 0, err
 	}
@@ -222,8 +222,8 @@ func (this *Config) GetInt(section, key string) (int64, error) {
 	}
 }
 
-func (this *Config) GetFloat(section, key string) (float64, error) {
-	value, err := this.Get(section, key)
+func (cfg *Config) GetFloat(section, key string) (float64, error) {
+	value, err := cfg.Get(section, key)
 	if err != nil {
 		return 0, err
 	}
@@ -236,8 +236,8 @@ func (this *Config) GetFloat(section, key string) (float64, error) {
 	}
 }
 
-func (this *Config) GetString(section, key string) (string, error) {
-	value, err := this.Get(section, key)
+func (cfg *Config) GetString(section, key string) (string, error) {
+	value, err := cfg.Get(section, key)
 	if err != nil {
 		return "", err
 	}
@@ -250,8 +250,8 @@ func (this *Config) GetString(section, key string) (string, error) {
 	}
 }
 
-func (this *Config) GetBoolDefault(section, key string, defaultValue bool) bool {
-	value, err := this.GetBool(section, key)
+func (cfg *Config) GetBoolDefault(section, key string, defaultValue bool) bool {
+	value, err := cfg.GetBool(section, key)
 	if err != nil {
 		return defaultValue
 	} else {
@@ -259,8 +259,8 @@ func (this *Config) GetBoolDefault(section, key string, defaultValue bool) bool 
 	}
 }
 
-func (this *Config) GetIntDefault(section, key string, defaultValue int64) int64 {
-	value, err := this.GetInt(section, key)
+func (cfg *Config) GetIntDefault(section, key string, defaultValue int64) int64 {
+	value, err := cfg.GetInt(section, key)
 	if err != nil {
 		return defaultValue
 	} else {
@@ -268,8 +268,8 @@ func (this *Config) GetIntDefault(section, key string, defaultValue int64) int64
 	}
 }
 
-func (this *Config) GetFloatDefault(section, key string, defaultValue float64) float64 {
-	value, err := this.GetFloat(section, key)
+func (cfg *Config) GetFloatDefault(section, key string, defaultValue float64) float64 {
+	value, err := cfg.GetFloat(section, key)
 	if err != nil {
 		return defaultValue
 	} else {
@@ -277,8 +277,8 @@ func (this *Config) GetFloatDefault(section, key string, defaultValue float64) f
 	}
 }
 
-func (this *Config) GetStringDefault(section, key string, defaultValue string) string {
-	value, err := this.GetString(section, key)
+func (cfg *Config) GetStringDefault(section, key string, defaultValue string) string {
+	value, err := cfg.GetString(section, key)
 	if err != nil {
 		return defaultValue
 	} else {
@@ -286,36 +286,36 @@ func (this *Config) GetStringDefault(section, key string, defaultValue string) s
 	}
 }
 
-func (this *Config) set(section, key string, value interface{}) {
-	sectionMap, ok := this.conf[section]
+func (cfg *Config) set(section, key string, value interface{}) {
+	sectionMap, ok := cfg.conf[section]
 	if !ok {
 		sectionMap = map[string]interface{}{}
 	}
 	sectionMap[key] = value
-	this.conf[section] = sectionMap
+	cfg.conf[section] = sectionMap
 }
 
-func (this *Config) SetInt(section, key string, value int64) {
-	this.set(section, key, value)
+func (cfg *Config) SetInt(section, key string, value int64) {
+	cfg.set(section, key, value)
 }
 
-func (this *Config) SetBool(section, key string, value bool) {
-	this.set(section, key, value)
+func (cfg *Config) SetBool(section, key string, value bool) {
+	cfg.set(section, key, value)
 }
 
-func (this *Config) SetFloat(section, key string, value float64) {
-	this.set(section, key, value)
+func (cfg *Config) SetFloat(section, key string, value float64) {
+	cfg.set(section, key, value)
 }
 
-func (this *Config) SetString(section, key string, value string) {
-	this.set(section, key, value)
+func (cfg *Config) SetString(section, key string, value string) {
+	cfg.set(section, key, value)
 }
 
-func (this *Config) Save(path string) error {
-	content := this.serialize()
-	this.rawContent = content
-	this.path = path
-	this.content = content
-	this.arraylize()
-	return com.WriteFileWithCreatePath(path, this.content)
+func (cfg *Config) Save(path string) error {
+	content := cfg.serialize()
+	cfg.rawContent = content
+	cfg.path = path
+	cfg.content = content
+	cfg.arraylize()
+	return com.WriteFileWithCreatePath(path, cfg.content)
 }

@@ -2,7 +2,7 @@ package ela
 
 import (
 	"fmt"
-	"github.com/gogather/com/log"
+	// "github.com/gogather/com/log"
 	"html/template"
 	"net/http"
 )
@@ -16,73 +16,73 @@ type Context struct {
 	headerMap map[string]string
 }
 
-func (this *Context) GetResponseWriter() ResponseWriter {
-	return this.w
+func (ctx *Context) GetResponseWriter() ResponseWriter {
+	return ctx.w
 }
 
-func (this *Context) GetRequest() *http.Request {
-	return this.r
+func (ctx *Context) GetRequest() *http.Request {
+	return ctx.r
 }
 
-func (this *Context) GetMethod() string {
-	return this.r.Method
+func (ctx *Context) GetMethod() string {
+	return ctx.r.Method
 }
 
-func (this *Context) SetStatus(status int) {
-	this.status = status
+func (ctx *Context) SetStatus(status int) {
+	ctx.status = status
 }
 
-func (this *Context) GetStatus() int {
-	return this.status
+func (ctx *Context) GetStatus() int {
+	return ctx.status
 }
 
-func (this *Context) SetHeader(key, value string) {
-	if this.headerMap == nil {
-		this.headerMap = make(map[string]string)
+func (ctx *Context) SetHeader(key, value string) {
+	if ctx.headerMap == nil {
+		ctx.headerMap = make(map[string]string)
 	}
-	this.headerMap[key] = value
+	ctx.headerMap[key] = value
 }
 
-func (this *Context) GetCookie(key string) (*http.Cookie, error) {
-	return this.r.Cookie(key)
+func (ctx *Context) GetCookie(key string) (*http.Cookie, error) {
+	return ctx.r.Cookie(key)
 }
 
-func (this *Context) SetCookie(cookie *http.Cookie) {
-	log.Redln(cookie)
-	http.SetCookie(this.w, cookie)
+func (ctx *Context) SetCookie(cookie *http.Cookie) {
+	// log.Redln(cookie)
+	http.SetCookie(ctx.w, cookie)
 }
 
-func (this *Context) Write(content string) (int, error) {
-	for k, v := range this.headerMap {
-		this.r.Header.Set(k, v)
+func (ctx *Context) Write(content string) (int, error) {
+	for k, v := range ctx.headerMap {
+		ctx.r.Header.Set(k, v)
 	}
-	return this.w.Write([]byte(content))
+	return ctx.w.Write([]byte(content))
 }
 
-func (this *Context) ServeTemplate(templateFile string) {
-	this.SetHeader("Content-Type", "text/html")
+func (ctx *Context) ServeTemplate(templateFile string) {
+	ctx.SetHeader("Content-Type", "text/html")
 
 	// if in debug mode, reload templates
 	if config.GetStringDefault("_", "mode", "dev") == "dev" {
 		reloadTemplate()
 	}
 
-	t, err := this.parseFiles(templatesName...)
+	t, err := ctx.parseFiles(templatesName...)
 
 	if err != nil {
 		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
-		this.SetStatus(500)
-		this.Write(content)
+		ctx.SetStatus(500)
+		ctx.Write(content)
 	} else {
-		err = t.ExecuteTemplate(this.w, templateFile, this.Data)
+		err = t.ExecuteTemplate(ctx.w, templateFile, ctx.Data)
 		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
-		this.SetStatus(500)
-		this.Write(content)
+		ctx.SetStatus(500)
+		ctx.Write(content)
 	}
 
 }
 
-func (this *Context) parseFiles(filenames ...string) (*template.Template, error) {
+func (ctx *Context) parseFiles(filenames ...string) (*template.Template, error) {
 	var t *template.Template = nil
 
 	if len(filenames) == 0 {

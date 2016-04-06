@@ -18,19 +18,19 @@ type responseWriter struct {
 	status int
 }
 
-func (this *responseWriter) Status() int {
-	return this.status
+func (r *responseWriter) Status() int {
+	return r.status
 }
 
-func (this *responseWriter) Header() http.Header {
-	return this.ResponseWriter.Header()
+func (r *responseWriter) Header() http.Header {
+	return r.ResponseWriter.Header()
 }
 
-func (this *responseWriter) Write(data []byte) (int, error) {
-	return this.ResponseWriter.Write(data)
+func (r *responseWriter) Write(data []byte) (int, error) {
+	return r.ResponseWriter.Write(data)
 }
 
-func (this *responseWriter) WriteHeader(status int) {
-	this.ResponseWriter.WriteHeader(status)
-	this.status = status
+func (r *responseWriter) WriteHeader(status int) {
+	r.ResponseWriter.WriteHeader(status)
+	r.status = status
 }
