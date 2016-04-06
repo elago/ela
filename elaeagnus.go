@@ -13,5 +13,5 @@ func SetConfig(path string) {
 }
 
 func Run() {
-	servHttp(int(config.GetIntDefault("_", "port", 3000)))
+	servHTTP(int(config.GetIntDefault("_", "port", 3000)))
 }

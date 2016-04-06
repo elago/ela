@@ -173,12 +173,12 @@ func (cfg *Config) GetWarnings() []string {
 func (cfg *Config) Get(section, key string) (interface{}, error) {
 	sectionMap, ok := cfg.conf[section]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("section %s not exist", section))
+		return nil, fmt.Errorf("section %s not exist", section)
 	}
 
 	value, ok := sectionMap[key]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("key %s in section %s not exist", key, section))
+		return nil, fmt.Errorf("key %s in section %s not exist", key, section)
 	}
 
 	return value, nil

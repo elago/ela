@@ -2,8 +2,6 @@ package ela
 
 import (
 	"fmt"
-	// "github.com/gogather/com/log"
-	"html/template"
 	"net/http"
 )
 
@@ -67,7 +65,7 @@ func (ctx *Context) ServeTemplate(templateFile string) {
 		reloadTemplate()
 	}
 
-	t, err := ctx.parseFiles(templatesName...)
+	t, err := parseFiles(templatesName...)
 
 	if err != nil {
 		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
@@ -75,34 +73,12 @@ func (ctx *Context) ServeTemplate(templateFile string) {
 		ctx.Write(content)
 	} else {
 		err = t.ExecuteTemplate(ctx.w, templateFile, ctx.Data)
-		content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
-		ctx.SetStatus(500)
-		ctx.Write(content)
-	}
-
-}
-
-func (ctx *Context) parseFiles(filenames ...string) (*template.Template, error) {
-	var t *template.Template = nil
-
-	if len(filenames) == 0 {
-		return nil, fmt.Errorf("html/template: no files named in call to ParseFiles")
-	}
-
-	for _, filename := range filenames {
-		var tmpl *template.Template
-		if t == nil {
-			t = template.New(filename)
-		}
-		if filename == t.Name() {
-			tmpl = t
-		} else {
-			tmpl = t.New(filename)
-		}
-		_, err := tmpl.Parse(templates[filename])
 		if err != nil {
-			return nil, err
+			content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
+			ctx.SetStatus(500)
+			ctx.Write(content)
 		}
 	}
-	return t, nil
+
 }
+

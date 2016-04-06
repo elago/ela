@@ -17,8 +17,8 @@ func NewSession(path string) Session {
 	}
 }
 
-func (this *Session) getSessionObject(sid string) (map[string]interface{}, error) {
-	fullpath := this.getPath(sid)
+func (sess *Session) getSessionObject(sid string) (map[string]interface{}, error) {
+	fullpath := sess.getPath(sid)
 
 	data, err := com.ReadFileByte(fullpath)
 	if err != nil {
@@ -30,15 +30,15 @@ func (this *Session) getSessionObject(sid string) (map[string]interface{}, error
 	return to, err
 }
 
-func (this *Session) saveSession(sid string, object interface{}) error {
-	fullpath := this.getPath(sid)
+func (sess *Session) saveSession(sid string, object interface{}) error {
+	fullpath := sess.getPath(sid)
 	str, err := com.Encode(object)
 	err = com.WriteFileWithCreatePath(fullpath, string(str))
 	return err
 }
 
-func (this *Session) Get(sid string, key string) (interface{}, error) {
-	mapObject, err := this.getSessionObject(sid)
+func (sess *Session) Get(sid string, key string) (interface{}, error) {
+	mapObject, err := sess.getSessionObject(sid)
 
 	if err != nil {
 		return nil, err
@@ -53,19 +53,19 @@ func (this *Session) Get(sid string, key string) (interface{}, error) {
 	}
 }
 
-func (this *Session) Set(sid string, key string, value interface{}) error {
-	mapObject, _ := this.getSessionObject(sid)
+func (sess *Session) Set(sid string, key string, value interface{}) error {
+	mapObject, _ := sess.getSessionObject(sid)
 	if mapObject == nil {
 		mapObject = map[string]interface{}{}
 	}
 	mapObject[key] = value
-	return this.saveSession(sid, mapObject)
+	return sess.saveSession(sid, mapObject)
 }
 
-func (this *Session) getPath(key string) string {
+func (sess *Session) getPath(key string) string {
 	length := len(key) - 3
 	dir1 := com.SubString(key, 0, 1)
 	dir2 := com.SubString(key, 1, 2)
 	file := com.SubString(key, 3, length)
-	return filepath.Join(this.path, dir1, dir2, file)
+	return filepath.Join(sess.path, dir1, dir2, file)
 }

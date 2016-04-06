@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func servHttp(port int) {
+func servHTTP(port int) {
 	log.Pinkf("[ela] Listen Port %d\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &elaHandler{})
 	if err != nil {
