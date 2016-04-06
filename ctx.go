@@ -28,6 +28,7 @@ func (ctx *Context) GetMethod() string {
 
 func (ctx *Context) SetStatus(status int) {
 	ctx.status = status
+	ctx.w.WriteHeader(ctx.status)
 }
 
 func (ctx *Context) GetStatus() int {
