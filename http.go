@@ -38,12 +38,15 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	addSpecialStatic("/favicon.ico")
 	addSpecialStatic("/robots.txt")
 
+	// add error controller
+	uriMapping["@500"] = errCtrl500
+
 	// deal with special static files
 	for i := 0; i < len(specialStatic); i++ {
 		special := specialStatic[i]
 		if path == special {
 			if staticExist(path) {
-				staticServ(path, ctx.w, r)
+				staticServ(path, ctx)
 			} else {
 				ctx.SetStatus(404)
 				http.Error(ctx.w, "404, File Not Exist", 404)
@@ -64,7 +67,7 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			path = reg.ReplaceAllString(path, "/"+staticDirectory)
 
 			if staticExist(rpath) {
-				staticServ(rpath, ctx.w, r)
+				staticServ(rpath, ctx)
 			} else {
 				ctx.SetStatus(404)
 				http.Error(ctx.w, "404, File Not Exist", 404)
@@ -91,8 +94,9 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				content := "500 Server Internal Error!\n\n" + fmt.Sprintf("%s", r) + "\n\n" + stack
 				log.Redln(r)
 				log.Yellowln(stack)
-				ctx.SetStatus(500)
-				ctx.Write(content)
+
+				// http.Error(ctx.w, content, 500)
+				servError(ctx, content, 500)
 				responseLog(ctx)
 			}
 		}()
@@ -102,7 +106,7 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else if errDefault != nil {
 		// if static-alias does not exist, using default mode
 		if staticExist(path) {
-			staticServ(path, ctx.w, r)
+			staticServ(path, ctx)
 		} else {
 			ctx.SetStatus(404)
 			http.Error(ctx.w, "404, File Not Exist", 404)

@@ -15,7 +15,9 @@ func init() {
 	staticDirectory = config.GetStringDefault("static", "path", "static")
 }
 
-func staticServ(uri string, writer http.ResponseWriter, request *http.Request) {
+func staticServ(uri string, ctx Context) {
+	writer := ctx.w
+	request := ctx.r
 	path := uri
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
