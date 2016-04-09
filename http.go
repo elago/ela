@@ -99,20 +99,17 @@ func servController(path string, ctx Context) {
 					stack = stack + fmt.Sprintln(fmt.Sprintf("%s:%d", file, line))
 				}
 
-				content := "500 Server Internal Error!\n\n" + fmt.Sprintf("<pre>%s</pre>", r) + "\n\n" + stack
+				content := "<h2>500 Server Internal Error!</h2>\n\n" + fmt.Sprintf("%s", r) + "\n\n" + "<pre>" + stack + "</pre>"
 				log.Redln(r)
 				log.Yellowln(stack)
 
-				// http.Error(ctx.w, content, 500)
 				servError(ctx, content, 500, false)
-				responseLog(ctx)
 			}
 		}()
 
 		// excute controller
 		function(ctx)
 	} else {
-		log.Pinkln("static")
 		// if static-alias does not exist, using default mode
 		if staticExist(path) {
 			staticServ(path, ctx)

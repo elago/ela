@@ -3,13 +3,10 @@ package ela
 import (
 	"fmt"
 	"github.com/gogather/com"
-	// "github.com/gogather/com/log"
-	"net/http"
 	"strings"
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
-	// err = fmtErrorHtml(err)
 	f := uriMapping[fmt.Sprintf("@%d", status)]
 	if f != nil && !useDefault{
 		function := f.(func(Context))
@@ -17,7 +14,8 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		defer func() {
 			if r := recover(); r != nil {
 				ctx.SetHeader("Content-Type", "text/html")
-				http.Error(ctx.w, err, status)
+				ctx.SetStatus(status)
+				ctx.Write(err)
 			}
 		}()
 
@@ -25,7 +23,8 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		ctx.SetStatus(status)
 	} else {
 		ctx.SetHeader("Content-Type", "text/html")
-		http.Error(ctx.w, err, status)
+		ctx.SetStatus(status)
+		ctx.Write(err)
 	}
 }
 

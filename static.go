@@ -16,14 +16,11 @@ func init() {
 }
 
 func staticServ(uri string, ctx Context) {
-	// writer := ctx.w
-	// request := ctx.r
 	path := uri
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
 		// 404
 		servError(ctx, "<h2>404, File N-ot Exist</h2>", 404, false)
-		// http.Error(writer, "404, File Not Exist", 404)
 		return
 	}
 
@@ -46,7 +43,6 @@ func servPath(path string, ctx Context) {
 	if err != nil {
 		// 404
 		servError(ctx, "<h2>404, File N*ot Exist</h2>", 404, false)
-		// http.Error(writer, "404, File Not Exist", 404)
 		return
 	} else {
 		fi, err := f.Stat()
@@ -54,7 +50,6 @@ func servPath(path string, ctx Context) {
 			// File exists but fail to open.
 			// 404
 			servError(ctx, "<h2>404, File N/ot Exist</h2>", 404, false)
-			// http.Error(writer, "404, File Not Exist", 404)
 			return
 		}
 
