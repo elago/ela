@@ -38,9 +38,6 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	addSpecialStatic("/favicon.ico")
 	addSpecialStatic("/robots.txt")
 
-	// add error controller
-	uriMapping["@500"] = errCtrl500
-
 	// deal with special static files
 	for i := 0; i < len(specialStatic); i++ {
 		special := specialStatic[i]

@@ -28,7 +28,8 @@ func (ctx *Context) GetMethod() string {
 
 func (ctx *Context) SetStatus(status int) {
 	ctx.status = status
-	ctx.w.WriteHeader(ctx.status)
+	ctx.w.SetStatus(status)
+	// ctx.w.WriteHeader(ctx.status)
 }
 
 func (ctx *Context) GetStatus() int {
@@ -55,10 +56,11 @@ func (ctx *Context) Write(content string) (int, error) {
 	for k, v := range ctx.headerMap {
 		ctx.r.Header.Set(k, v)
 	}
+	ctx.w.WriteHeader(ctx.status)
 	return ctx.w.Write([]byte(content))
 }
 
-func (ctx *Context) ServeTemplate(templateFile string) {
+func (ctx *Context) serveTemplateWithStatus(templateFile string, status int) {
 	ctx.SetHeader("Content-Type", "text/html")
 
 	// if in debug mode, reload templates
@@ -73,7 +75,13 @@ func (ctx *Context) ServeTemplate(templateFile string) {
 		ctx.SetStatus(500)
 		ctx.Write(content)
 	} else {
+
+		if status==404||status==500 {
+			ctx.w.WriteHeader(500)
+		}
+		
 		err = t.ExecuteTemplate(ctx.w, templateFile, ctx.Data)
+		
 		if err != nil {
 			content := "Server Internal Error!\n\n" + fmt.Sprintln(err)
 			ctx.SetStatus(500)
@@ -83,3 +91,10 @@ func (ctx *Context) ServeTemplate(templateFile string) {
 
 }
 
+func (ctx *Context) ServeTemplate(templateFile string) {
+	ctx.serveTemplateWithStatus(templateFile, 200)
+}
+
+func (ctx *Context) ServeError(status int , templateFile string) {
+	ctx.serveTemplateWithStatus(templateFile, status)
+}

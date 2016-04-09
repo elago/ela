@@ -13,6 +13,7 @@ import (
 var templates map[string]string
 var templatesName []string
 var templatefolder string
+var templatesFilterOut []string
 
 func init() {
 	templates = make(map[string]string)
@@ -29,14 +30,28 @@ func reloadTemplate() {
 	listFile(templatefolder)
 }
 
+func addFilterOut(filename string) {
+	templatesFilterOut = append(templatesFilterOut, filename)
+}
+
+func notInFilterOut(filename string) bool {
+	for i := 0; i < len(templatesFilterOut); i++ {
+		if templatesFilterOut[i] == filename {
+			return false
+		}
+	}
+	return true
+}
+
 func listFile(dir string) {
-	templatesName = nil
+	addFilterOut(".DS_Store")
+
 	files, _ := ioutil.ReadDir(dir)
 	for _, file := range files {
 		subfile := dir + "/" + file.Name()
 		if file.IsDir() {
 			listFile(subfile)
-		} else {
+		} else if notInFilterOut(file.Name()) {
 			content, err := com.ReadFileString(subfile)
 			if err != nil {
 				templates[subfile] = ""
@@ -45,9 +60,18 @@ func listFile(dir string) {
 				content = lefTplDir(content, templatefolder)
 				subfile = lefTplDir(subfile, templatefolder)
 				templates[subfile] = content
-				templatesName = append(templatesName, subfile)
 			}
 		}
+	}
+
+	// get template name list
+	getTemplateNames()
+}
+
+func getTemplateNames() {
+	templatesName = make([]string, 0, len(templates))
+	for k := range templates {
+		templatesName = append(templatesName, k)
 	}
 }
 

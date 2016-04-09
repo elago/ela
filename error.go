@@ -3,6 +3,7 @@ package ela
 import (
 	"fmt"
 	"net/http"
+	"github.com/gogather/com/log"
 )
 
 func servError(ctx Context, err string, status int) {
@@ -12,6 +13,7 @@ func servError(ctx Context, err string, status int) {
 
 		defer func() {
 			if r := recover(); r != nil {
+				log.Pinkln("===")
 				http.Error(ctx.w, err, 500)
 			}
 		}()
@@ -21,8 +23,4 @@ func servError(ctx Context, err string, status int) {
 	} else {
 		http.Error(ctx.w, err, 500)
 	}
-}
-
-func errCtrl500(ctx Context) {
-	ctx.Write("hello 500")
 }

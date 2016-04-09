@@ -7,6 +7,7 @@ import (
 type ResponseWriter interface {
 	http.ResponseWriter
 	Status() int
+	SetStatus(int)
 }
 
 func NewResponseWriter(rw http.ResponseWriter) ResponseWriter {
@@ -16,6 +17,10 @@ func NewResponseWriter(rw http.ResponseWriter) ResponseWriter {
 type responseWriter struct {
 	http.ResponseWriter
 	status int
+}
+
+func (r *responseWriter) SetStatus(status int) {
+	r.status = status
 }
 
 func (r *responseWriter) Status() int {
