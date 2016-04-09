@@ -2,25 +2,35 @@ package ela
 
 import (
 	"fmt"
+	"github.com/gogather/com"
+	// "github.com/gogather/com/log"
 	"net/http"
-	"github.com/gogather/com/log"
+	"strings"
 )
 
-func servError(ctx Context, err string, status int) {
+func servError(ctx Context, err string, status int, useDefault bool) {
+	// err = fmtErrorHtml(err)
 	f := uriMapping[fmt.Sprintf("@%d", status)]
-	if f != nil {
+	if f != nil && !useDefault{
 		function := f.(func(Context))
 
 		defer func() {
 			if r := recover(); r != nil {
-				log.Pinkln("===")
-				http.Error(ctx.w, err, 500)
+				ctx.SetHeader("Content-Type", "text/html")
+				http.Error(ctx.w, err, status)
 			}
 		}()
 
 		function(ctx)
-		ctx.SetStatus(500) // TODO: response writer should return 500 status
+		ctx.SetStatus(status)
 	} else {
-		http.Error(ctx.w, err, 500)
+		ctx.SetHeader("Content-Type", "text/html")
+		http.Error(ctx.w, err, status)
 	}
+}
+
+func fmtErrorHtml(content string) string {
+	content = com.HTMLEncode(content)
+	content = strings.Replace(content, "\n", "<br>", -1)
+	return content
 }

@@ -16,40 +16,45 @@ func init() {
 }
 
 func staticServ(uri string, ctx Context) {
-	writer := ctx.w
-	request := ctx.r
+	// writer := ctx.w
+	// request := ctx.r
 	path := uri
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
 		// 404
-		http.Error(writer, "404, File Not Exist", 404)
+		servError(ctx, "<h2>404, File N-ot Exist</h2>", 404, false)
+		// http.Error(writer, "404, File Not Exist", 404)
 		return
 	}
 
 	if !stat.IsDir() {
 		// read file
-		servPath(path, writer, request)
+		servPath(path, ctx)
 	} else {
 		path = path + "/index.html"
-		servPath(path, writer, request)
+		servPath(path, ctx)
 	}
 
 }
 
-func servPath(path string, writer http.ResponseWriter, request *http.Request) {
+func servPath(path string, ctx Context) {
+	writer := ctx.w
+	request := ctx.r
 	FileSystem := newStaticFileSystem(staticDirectory)
 	f, err := FileSystem.Open(path)
 
 	if err != nil {
 		// 404
-		http.Error(writer, "404, File Not Exist", 404)
+		servError(ctx, "<h2>404, File N*ot Exist</h2>", 404, false)
+		// http.Error(writer, "404, File Not Exist", 404)
 		return
 	} else {
 		fi, err := f.Stat()
 		if err != nil {
 			// File exists but fail to open.
 			// 404
-			http.Error(writer, "404, File Not Exist", 404)
+			servError(ctx, "<h2>404, File N/ot Exist</h2>", 404, false)
+			// http.Error(writer, "404, File Not Exist", 404)
 			return
 		}
 

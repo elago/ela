@@ -45,8 +45,7 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if staticExist(path) {
 				staticServ(path, ctx)
 			} else {
-				ctx.SetStatus(404)
-				http.Error(ctx.w, "404, File Not Exist", 404)
+				servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
 			}
 
 			// recording response log
@@ -66,14 +65,26 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if staticExist(rpath) {
 				staticServ(rpath, ctx)
 			} else {
-				ctx.SetStatus(404)
-				http.Error(ctx.w, "404, File Not Exist", 404)
+				servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
 			}
+
+			// recording response log
+			responseLog(ctx)
+			return
 		}
+
 	}
 
+	servController(path, ctx)
+
+	// recording response log
+	responseLog(ctx)
+}
+
+func servController(path string, ctx Context) {
 	f := uriMapping[path]
 	if f != nil {
+		log.Println("controller")
 		function := f.(func(Context))
 
 		defer func() {
@@ -88,28 +99,25 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					stack = stack + fmt.Sprintln(fmt.Sprintf("%s:%d", file, line))
 				}
 
-				content := "500 Server Internal Error!\n\n" + fmt.Sprintf("%s", r) + "\n\n" + stack
+				content := "500 Server Internal Error!\n\n" + fmt.Sprintf("<pre>%s</pre>", r) + "\n\n" + stack
 				log.Redln(r)
 				log.Yellowln(stack)
 
 				// http.Error(ctx.w, content, 500)
-				servError(ctx, content, 500)
+				servError(ctx, content, 500, false)
 				responseLog(ctx)
 			}
 		}()
 
 		// excute controller
 		function(ctx)
-	} else if errDefault != nil {
+	} else {
+		log.Pinkln("static")
 		// if static-alias does not exist, using default mode
 		if staticExist(path) {
 			staticServ(path, ctx)
 		} else {
-			ctx.SetStatus(404)
-			http.Error(ctx.w, "404, File Not Exist", 404)
+			servError(ctx, "<h2>404, File Not Ex+ist</h2>", 404, false)
 		}
 	}
-
-	// recording response log
-	responseLog(ctx)
 }
