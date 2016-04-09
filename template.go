@@ -14,6 +14,7 @@ var funcMap = template.FuncMap{}
 
 func parseFiles(filenames ...string) (*template.Template, error) {
 	var t *template.Template = nil
+	var err error = nil
 
 	if len(filenames) == 0 {
 		return nil, fmt.Errorf("html/template: no files named in call to ParseFiles")
@@ -26,12 +27,9 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 		if filename != t.Name() {
 			t = t.New(filename)
 		}
-		_, err := t.Funcs(funcMap).Parse(templates[filename])
-		if err != nil {
-			return nil, err
-		}
+		_, err = t.Funcs(funcMap).Parse(templates[filename])
 	}
-	return t, nil
+	return t, err
 }
 
 func AddTemplateFunc(functionName string, function interface{}) {
