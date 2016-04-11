@@ -7,7 +7,7 @@ import (
 )
 
 func TestRouter(t *testing.T) {
-
+	log.Debug=true
 	Convey("Router Session sections", t, func() {
 		Router("/:hello/:world/123", 123)
 		Router("/:hello/123", 1234)

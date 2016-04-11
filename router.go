@@ -1,8 +1,6 @@
 package ela
 
 import (
-	// "fmt"
-	"github.com/gogather/com/log"
 	"regexp"
 	"sort"
 )
@@ -37,7 +35,6 @@ func getController(uri string) interface{} {
 	for k := range uriMapping {
 		routerElement := uriMapping[k]
 		if routerElement.mode == 0 && routerElement.raw == uri {
-			log.Greenf("[direct mode]\n%s - %s\n", routerElement.raw, uri)
 			return routerElement.fun
 		}
 	}
@@ -56,7 +53,6 @@ func getController(uri string) interface{} {
 		expression := routerElement.exp
 		if routerElement.mode == 1 {
 			matched, _ := regexp.MatchString(expression, uri)
-			log.Pinkf("%s - %s - %v\n", expression, uri, matched)
 			if matched {
 				return routerElement.fun
 			}
