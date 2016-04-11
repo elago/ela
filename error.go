@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/gogather/com"
 	"strings"
+	"errors"
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
 	f := uriMapping[fmt.Sprintf("@%d", status)]
 	if f != nil && !useDefault{
-		function := f.(func(Context))
+		function := f.(func(Context, error))
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -19,7 +20,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 			}
 		}()
 
-		function(ctx)
+		function(ctx, errors.New(err))
 		ctx.SetStatus(status)
 	} else {
 		ctx.SetHeader("Content-Type", "text/html")
