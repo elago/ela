@@ -8,7 +8,7 @@ import (
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
-	f := uriMapping[fmt.Sprintf("@%d", status)]
+	f := getController(fmt.Sprintf("@%d", status))
 	if f != nil && !useDefault{
 		function := f.(func(Context, error))
 

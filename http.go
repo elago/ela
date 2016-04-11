@@ -82,7 +82,7 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func servController(path string, ctx Context) {
-	f := uriMapping[path]
+	f := getController(path)
 	if f != nil {
 		log.Println("controller")
 		function := f.(func(Context))
