@@ -27,6 +27,8 @@ func TestRouter(t *testing.T) {
 		So(ctrl1, ShouldEqual, 123)
 		So(ctrl2, ShouldEqual, 1234)
 		So(ctrl3, ShouldEqual, "index")
+		So(param1["hello"], ShouldEqual, "param1")
+		So(param1["world"], ShouldEqual, "param2")
 	})
 
 }
