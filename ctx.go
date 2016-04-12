@@ -12,6 +12,7 @@ type Context struct {
 	Data      map[string]interface{}
 	status    int
 	headerMap map[string]string
+	uriParams map[string]string
 }
 
 func (ctx *Context) GetResponseWriter() ResponseWriter {
@@ -99,4 +100,21 @@ func (ctx *Context) ServeTemplate(templateFile string) {
 
 func (ctx *Context) ServeError(status int, templateFile string) {
 	ctx.serveTemplateWithStatus(templateFile, status, true)
+}
+
+func (ctx *Context) setURIParam(params map[string]string) {
+	ctx.uriParams = params
+}
+
+func (ctx *Context) GetURIParam(key string) (string, error) {
+	if ctx.uriParams == nil {
+		return "", fmt.Errorf("%s", "does not exist uri params")
+	} else {
+		// fmt.Printf("%s", ctx.uriParams)
+		return ctx.uriParams[key], nil
+	}
+}
+
+func (ctx *Context) GetURIParamDefault(key string, defaultValue string) {
+
 }

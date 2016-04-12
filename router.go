@@ -1,15 +1,16 @@
 package ela
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 )
 
 type uriMode struct {
-	mode int // 0:direct mode; 1:arg parse mode
-	exp  string
-	raw  string
-	fun  interface{}
+	mode int         // 0:direct mode; 1:arg parse mode
+	exp  string      // parsed uri pattern
+	raw  string      // raw request uri
+	fun  interface{} // controller
 }
 
 var uriMapping map[string]uriMode
@@ -25,17 +26,16 @@ func Router(uri string, f interface{}) {
 	} else {
 		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f}
 	}
-
 }
 
 // get controller from router map
-func getController(uri string) interface{} {
+func getController(uri string) (interface{}, map[string]string) {
 
 	// using direct match mode
 	for k := range uriMapping {
 		routerElement := uriMapping[k]
 		if routerElement.mode == 0 && routerElement.raw == uri {
-			return routerElement.fun
+			return routerElement.fun, nil
 		}
 	}
 
@@ -54,13 +54,13 @@ func getController(uri string) interface{} {
 		if routerElement.mode == 1 {
 			matched, _ := regexp.MatchString(expression, uri)
 			if matched {
-				return routerElement.fun
+				argMap, _ := getArgs(uri, routerElement.raw)
+				return routerElement.fun, argMap
 			}
 		}
-
 	}
 
-	return nil
+	return nil, nil
 }
 
 func isArgMode(uri string) bool {
@@ -71,7 +71,44 @@ func isArgMode(uri string) bool {
 
 func getArgParseExp(argUriKey string) string {
 	regexpress := `/:([\D]{1}[\d\D][^:\/\n\r]*)`
-	paramMatchExp := `/[\d\D][^\/]+`
+	paramMatchExp := `/([\d\D][^\/]+)`
 	reg := regexp.MustCompile(regexpress)
 	return `^` + reg.ReplaceAllString(argUriKey, paramMatchExp) + `$`
+}
+
+// get arguments from uri
+// raw: request uri
+// pattern: uri pattern
+func getArgs(raw, pattern string) (map[string]string, error) {
+	if !isArgMode(pattern) {
+		return nil, fmt.Errorf("%s", "pattern is not arg parse mode")
+	}
+
+	argsMap := make(map[string]string)
+	regRaw := regexp.MustCompile(`/:([\D]{1}[\d\D][^:\/\n\r]*)`)
+	regExp := regexp.MustCompile(uriMapping[pattern].exp)
+	argNameArray := regRaw.FindAllStringSubmatch(pattern, -1)
+	argValueArray := regExp.FindAllStringSubmatch(raw, -1)
+
+	var valueSubArray []string
+	var lenOfArgValueSubArray int
+	lenOfArgValueArray := len(argValueArray)
+
+	if lenOfArgValueArray > 0 {
+		valueSubArray = argValueArray[0]
+		lenOfArgValueSubArray = len(valueSubArray)
+	}
+
+	for i := 0; i < len(argNameArray); i++ {
+		key := argNameArray[i][1]
+		var value string
+
+		if i+1 < lenOfArgValueSubArray {
+			value = valueSubArray[i+1]
+		}
+
+		argsMap[key] = value
+	}
+
+	return argsMap, nil
 }

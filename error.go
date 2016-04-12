@@ -1,15 +1,16 @@
 package ela
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gogather/com"
 	"strings"
-	"errors"
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
-	f := getController(fmt.Sprintf("@%d", status))
-	if f != nil && !useDefault{
+	f, _ := getController(fmt.Sprintf("@%d", status))
+
+	if f != nil && !useDefault {
 		function := f.(func(Context, error))
 
 		defer func() {
@@ -23,7 +24,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 
 		ctx.SetStatus(status)
 		function(ctx, errors.New(err))
-		
+
 	} else {
 		ctx.SetHeader("Content-Type", "text/html")
 		ctx.SetStatus(status)
