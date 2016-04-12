@@ -104,6 +104,7 @@ func servController(path string, ctx Context) {
 				log.Yellowln(stack)
 
 				servError(ctx, content, 500, false)
+				return
 			}
 		}()
 
@@ -114,7 +115,7 @@ func servController(path string, ctx Context) {
 		if staticExist(path) {
 			staticServ(path, ctx)
 		} else {
-			servError(ctx, "<h2>404, File Not Ex+ist</h2>", 404, false)
+			servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
 		}
 	}
 }

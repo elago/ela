@@ -13,6 +13,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		function := f.(func(Context, error))
 
 		defer func() {
+
 			if r := recover(); r != nil {
 				ctx.SetHeader("Content-Type", "text/html")
 				ctx.SetStatus(status)
@@ -20,8 +21,9 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 			}
 		}()
 
-		function(ctx, errors.New(err))
 		ctx.SetStatus(status)
+		function(ctx, errors.New(err))
+		
 	} else {
 		ctx.SetHeader("Content-Type", "text/html")
 		ctx.SetStatus(status)
