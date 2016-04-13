@@ -110,11 +110,15 @@ func (ctx *Context) GetURIParam(key string) (string, error) {
 	if ctx.uriParams == nil {
 		return "", fmt.Errorf("%s", "does not exist uri params")
 	} else {
-		// fmt.Printf("%s", ctx.uriParams)
 		return ctx.uriParams[key], nil
 	}
 }
 
-func (ctx *Context) GetURIParamDefault(key string, defaultValue string) {
-
+func (ctx *Context) GetURIParamDefault(key string, defaultValue string) string {
+	value, err := ctx.GetURIParam(key)
+	if err != nil {
+		return defaultValue
+	} else {
+		return value
+	}
 }
