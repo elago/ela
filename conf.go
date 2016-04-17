@@ -38,7 +38,7 @@ func (cfg *Config) readConfigFile() (string, error) {
 
 // filter the code comment
 func (cfg *Config) filterComment() string {
-	reg := regexp.MustCompile(`#[\d\D][^\n#]*\n`)
+	reg := regexp.MustCompile(`[#;][\d\D][^\n]*\n*`)
 	rep := []byte("\n")
 	cfg.content = string(reg.ReplaceAll([]byte(cfg.rawContent), rep))
 	return cfg.content

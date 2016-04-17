@@ -3,6 +3,7 @@ package ela
 import (
 	"github.com/gogather/com"
 	. "github.com/smartystreets/goconvey/convey"
+	"path/filepath"
 	"testing"
 )
 
@@ -13,7 +14,7 @@ func TestSession(t *testing.T) {
 		sess := NewSession("tmp")
 		path := sess.getPath("ABCDEFGHIJKLMNOPQRST")
 
-		So(path, ShouldEqual, "tmp/A/BC/DEFGHIJKLMNOPQRST")
+		So(path, ShouldEqual, filepath.Join("tmp", "A", "BC", "DEFGHIJKLMNOPQRST"))
 
 		sess.Set("ABCDEFGHIJKLMNOPQRST", "key", "ABCDEFGHIJKLMNOPQRST")
 		sess.Set("ABCDEFGHIJKLMNOPQRST", "number", 123456)

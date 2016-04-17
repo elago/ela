@@ -84,7 +84,7 @@ func TestConfig(t *testing.T) {
 		So(val2, ShouldEqual, "my application")
 
 		val3, _ := conf.GetString("mysql", "password")
-		So(val3, ShouldEqual, "liju#n")
+		So(val3, ShouldEqual, "\"liju")
 
 		val4, _ := conf.GetString("mysql", "host")
 		So(val4, ShouldEqual, `"192.168.1.11" = GHJ`)
@@ -100,5 +100,8 @@ func TestConfig(t *testing.T) {
 
 		val8 := conf.GetIntDefault("section", "key", 100)
 		So(val8, ShouldEqual, 100)
+
+		val9 := conf.GetStringDefault("mysql", "key", "")
+		So(val9, ShouldEqual, "")
 	})
 }
