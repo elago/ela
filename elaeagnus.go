@@ -4,12 +4,24 @@ import (
 // "fmt"
 )
 
+const (
+	VERSION = "0.0.1"
+)
+
 var (
 	config = NewConfig("conf/app.ini")
 )
 
+func Version() string {
+	return VERSION
+}
+
 func SetConfig(path string) {
 	config.ReloadConfig(path)
+}
+
+func GetConfig() Config {
+	return config
 }
 
 func Run() {
