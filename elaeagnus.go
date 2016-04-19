@@ -20,8 +20,8 @@ func SetConfig(path string) {
 	config.ReloadConfig(path)
 }
 
-func GetConfig() Config {
-	return config
+func GetConfig() *Config {
+	return &config
 }
 
 func Run() {
