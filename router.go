@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 type uriMode struct {
@@ -13,19 +14,41 @@ type uriMode struct {
 	fun  []interface{} // controller
 }
 
-var uriMapping map[string]uriMode
+var(
+	uriMapping map[string]uriMode
+	beforeController interface{}
+	afterController interface{}
+)
 
 func init() {
 	uriMapping = make(map[string]uriMode)
 }
 
-// execute before action
-func BeforeRouter(f interface{}){
+func Router(uri string, f ... interface{}){
+	if strings.HasPrefix(uri,"@") {
+		panic("@ should not be prefix of uri")
+	}else if !strings.HasPrefix(uri, "/") {
+		panic("uri should begin with /")
+	}else {
+		router(uri, f ...)
+	}
+}
 
+func NotFountError(f interface{}){
+	router("@404", f)
+}
+
+func InternalError(f interface{}){
+	router("@500", f)
+}
+
+// execute before action
+func beforeRouter(f interface{}){
+	beforeController = f
 }
 
 // put uri-func mapping into map
-func Router(uri string, f ... interface{}) {
+func router(uri string, f ... interface{}) {
 	if isArgMode(uri) {
 		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f}
 	} else {
@@ -34,8 +57,8 @@ func Router(uri string, f ... interface{}) {
 }
 
 // execute after action
-func AfterRouter(f interface{}){
-
+func afterRouter(f interface{}){
+	afterController = f
 }
 
 // get controller from router map

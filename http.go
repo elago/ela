@@ -109,10 +109,22 @@ func servController(path string, ctx Context) {
 			}
 		}()
 
-		// excute controllers
+		// execute before controllers
+		if beforeController!=nil {
+			before:=beforeController.(func(Context))
+			before(ctx)
+		}
+
+		// execute controllers
 		for i := 0; i < len(functions); i++ {
 			function:=functions[i].(func(Context))
 			function(ctx)
+		}
+
+		// execute after controllers
+		if afterController!=nil {
+			after:=afterController.(func(Context))
+			after(ctx)
 		}
 
 	} else {

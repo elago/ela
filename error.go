@@ -24,7 +24,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 
 		ctx.SetStatus(status)
 
-		// just get and run first controller
+		// just get and execute first controller
 		if len(functions) >= 1 {
 			function:=functions[0].(func(Context, error))
 			function(ctx, errors.New(err))
