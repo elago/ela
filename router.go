@@ -8,77 +8,83 @@ import (
 )
 
 type uriMode struct {
-	mode int         // 0:direct mode; 1:arg parse mode
-	exp  string      // parsed uri pattern
-	raw  string      // raw request uri
-	fun  []interface{} // controller
-	argsMap map[string]string // args map
-	withBefore bool // with before controller
-	withAfter bool // with after controller
+	mode       int               // 0:direct mode; 1:arg parse mode
+	exp        string            // parsed uri pattern
+	raw        string            // raw request uri
+	fun        []interface{}     // controller
+	argsMap    map[string]string // args map
+	withBefore bool              // with before controller
+	withAfter  bool              // with after controller
 }
 
-var(
-	uriMapping map[string]uriMode
+var (
+	uriMapping       map[string]uriMode
 	beforeController interface{}
-	afterController interface{}
+	afterController  interface{}
 )
 
 func init() {
 	uriMapping = make(map[string]uriMode)
 }
 
-func BeforeController(f interface{})  {
+// define a controller run before main controller
+func BeforeController(f interface{}) {
 	beforeRouter(f)
 }
 
-func AfterController(f interface{})  {
+// define a controller run after main controller
+func AfterController(f interface{}) {
 	afterRouter(f)
 }
 
-func InstallRouter(uri string, f ... interface{})  {
-	if strings.HasPrefix(uri,"@") {
+// define a controller run without beforeController and afterController, some time used for installing mode
+func InstallRouter(uri string, f ...interface{}) {
+	if strings.HasPrefix(uri, "@") {
 		panic("@ should not be prefix of uri")
-	}else if !strings.HasPrefix(uri, "/") {
+	} else if !strings.HasPrefix(uri, "/") {
 		panic("uri should begin with /")
-	}else {
-		router(uri, false, false, f ...)
+	} else {
+		router(uri, false, false, f...)
 	}
 }
 
-func Router(uri string, f ... interface{}){
-	if strings.HasPrefix(uri,"@") {
+// define a serials controller as main controller for an uri pattern
+func Router(uri string, f ...interface{}) {
+	if strings.HasPrefix(uri, "@") {
 		panic("@ should not be prefix of uri")
-	}else if !strings.HasPrefix(uri, "/") {
+	} else if !strings.HasPrefix(uri, "/") {
 		panic("uri should begin with /")
-	}else {
-		router(uri, true, true, f ...)
+	} else {
+		router(uri, true, true, f...)
 	}
 }
 
-func NotFountError(f interface{}){
-	router("@404",false,false, f)
+// define a controller for file not found error
+func NotFountError(f interface{}) {
+	router("@404", false, false, f)
 }
 
-func InternalError(f interface{}){
-	router("@500",false,false, f)
+// define a controller for server internal error
+func InternalError(f interface{}) {
+	router("@500", false, false, f)
 }
 
 // execute before action
-func beforeRouter(f interface{}){
+func beforeRouter(f interface{}) {
 	beforeController = f
 }
 
 // put uri-func mapping into map
-func router(uri string, withBefore bool, withAfter bool, f ... interface{}) {
+func router(uri string, withBefore bool, withAfter bool, f ...interface{}) {
 	if isArgMode(uri) {
-		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f, withBefore:withBefore, withAfter:withAfter}
+		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f, withBefore: withBefore, withAfter: withAfter}
 	} else {
-		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f, withBefore:withBefore, withAfter:withAfter}
+		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f, withBefore: withBefore, withAfter: withAfter}
 	}
 }
 
 // execute after action
-func afterRouter(f interface{}){
+func afterRouter(f interface{}) {
 	afterController = f
 }
 

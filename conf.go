@@ -20,7 +20,7 @@ type Config struct {
 }
 
 func NewConfig(path string) Config {
-	conf:=newConfig()
+	conf := newConfig()
 	conf.path = path
 	conf.parseIniFile()
 	return conf

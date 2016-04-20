@@ -8,15 +8,15 @@ import (
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
-	controller:=getController(fmt.Sprintf("@%d", status))
+	controller := getController(fmt.Sprintf("@%d", status))
 
-	if controller==nil {
+	if controller == nil {
 		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
 		return
 	}
 
-	routerElement:=controller.(uriMode)
-	f:=routerElement.fun
+	routerElement := controller.(uriMode)
+	f := routerElement.fun
 
 	if f != nil && !useDefault {
 		functions := f
@@ -34,7 +34,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 
 		// just get and execute first controller
 		if len(functions) >= 1 {
-			function:=functions[0].(func(Context, error))
+			function := functions[0].(func(Context, error))
 			function(ctx, errors.New(err))
 		}
 

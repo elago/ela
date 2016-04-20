@@ -17,7 +17,7 @@ func NewResponseWriter(rw http.ResponseWriter) ResponseWriter {
 
 type responseWriter struct {
 	http.ResponseWriter
-	status int
+	status  int
 	flushed bool
 }
 
@@ -30,11 +30,11 @@ func (r *responseWriter) Status() int {
 }
 
 func (r *responseWriter) HasFlushed() bool {
-	return r.flushed==true
+	return r.flushed == true
 }
 
 func (r *responseWriter) Header() http.Header {
-	r.flushed=true
+	r.flushed = true
 	return r.ResponseWriter.Header()
 }
 

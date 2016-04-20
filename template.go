@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"strings"
 	"sort"
+	"strings"
 )
 
 var (
@@ -101,13 +101,14 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 		_, err = t.Funcs(funcMap).Parse(templates[filename])
 
 		// anyone template syntax error throw panic
-		if err!=nil {
+		if err != nil {
 			panic(err)
 		}
 	}
 	return t, err
 }
 
+// add template function definition
 func AddTemplateFunc(functionName string, function interface{}) {
 	funcMap[functionName] = function
 }

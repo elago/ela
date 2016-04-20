@@ -83,14 +83,14 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func servController(path string, ctx Context) {
 	controller := getController(path)
-	if controller==nil {
+	if controller == nil {
 		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
 		return
 	}
 
-	routerElement:=controller.(uriMode)
-	f:=routerElement.fun
-	params:=routerElement.argsMap
+	routerElement := controller.(uriMode)
+	f := routerElement.fun
+	params := routerElement.argsMap
 
 	ctx.setURIParam(params)
 	if f != nil {
@@ -119,22 +119,22 @@ func servController(path string, ctx Context) {
 		}()
 
 		// execute before controllers
-		if beforeController!=nil && routerElement.withBefore {
-			before:=beforeController.(func(Context))
+		if beforeController != nil && routerElement.withBefore {
+			before := beforeController.(func(Context))
 			before(ctx)
 		}
 
 		// execute controllers
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
-				function:=functions[i].(func(Context))
+				function := functions[i].(func(Context))
 				function(ctx)
 			}
 		}
 
 		// execute after controllers
-		if afterController!=nil && routerElement.withBefore {
-			after:=afterController.(func(Context))
+		if afterController != nil && routerElement.withBefore {
+			after := afterController.(func(Context))
 			after(ctx)
 		}
 

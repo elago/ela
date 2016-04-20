@@ -30,7 +30,6 @@ func (ctx *Context) GetMethod() string {
 func (ctx *Context) SetStatus(status int) {
 	ctx.status = status
 	ctx.w.SetStatus(status)
-	// ctx.w.WriteHeader(ctx.status)
 }
 
 func (ctx *Context) GetStatus() int {
@@ -44,19 +43,22 @@ func (ctx *Context) SetHeader(key, value string) {
 	ctx.headerMap[key] = value
 }
 
+// url redirection
 func (ctx *Context) Redirect(url string) {
 	http.Redirect(ctx.w, ctx.r, url, 302)
 }
 
+// get cookie
 func (ctx *Context) GetCookie(key string) (*http.Cookie, error) {
 	return ctx.r.Cookie(key)
 }
 
+// set cookie
 func (ctx *Context) SetCookie(cookie *http.Cookie) {
-	// log.Redln(cookie)
 	http.SetCookie(ctx.w, cookie)
 }
 
+// write and flush response content
 func (ctx *Context) Write(content string) (int, error) {
 	header := ctx.w.Header()
 	for k, v := range ctx.headerMap {
@@ -98,10 +100,12 @@ func (ctx *Context) serveTemplateWithStatus(templateFile string, status int, use
 
 }
 
+// serve and parse a template
 func (ctx *Context) ServeTemplate(templateFile string) {
 	ctx.serveTemplateWithStatus(templateFile, 200, false)
 }
 
+// serve and parse a template for an error, used for error controller
 func (ctx *Context) ServeError(status int, templateFile string) {
 	ctx.serveTemplateWithStatus(templateFile, status, true)
 }
@@ -110,6 +114,7 @@ func (ctx *Context) setURIParam(params map[string]string) {
 	ctx.uriParams = params
 }
 
+// get uri params when defined router with uri params mode
 func (ctx *Context) GetURIParam(key string) (string, error) {
 	if ctx.uriParams == nil {
 		return "", fmt.Errorf("%s", "does not exist uri params")
@@ -118,6 +123,7 @@ func (ctx *Context) GetURIParam(key string) (string, error) {
 	}
 }
 
+// get uri params with default value
 func (ctx *Context) GetURIParamDefault(key string, defaultValue string) string {
 	value, err := ctx.GetURIParam(key)
 	if err != nil {
