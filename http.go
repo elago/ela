@@ -117,8 +117,10 @@ func servController(path string, ctx Context) {
 
 		// execute controllers
 		for i := 0; i < len(functions); i++ {
-			function:=functions[i].(func(Context))
-			function(ctx)
+			if !ctx.GetResponseWriter().HasFlushed() {
+				function:=functions[i].(func(Context))
+				function(ctx)
+			}
 		}
 
 		// execute after controllers

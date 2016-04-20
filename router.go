@@ -24,6 +24,14 @@ func init() {
 	uriMapping = make(map[string]uriMode)
 }
 
+func BeforeController(f interface{})  {
+	beforeRouter(f)
+}
+
+func AfterController(f interface{})  {
+	afterRouter(f)
+}
+
 func Router(uri string, f ... interface{}){
 	if strings.HasPrefix(uri,"@") {
 		panic("@ should not be prefix of uri")
