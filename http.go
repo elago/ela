@@ -86,7 +86,7 @@ func servController(path string, ctx Context) {
 	ctx.setURIParam(params)
 	if f != nil {
 
-		function := f.(func(Context))
+		functions := f.([]interface{})
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -109,8 +109,12 @@ func servController(path string, ctx Context) {
 			}
 		}()
 
-		// excute controller
-		function(ctx)
+		// excute controllers
+		for i := 0; i < len(functions); i++ {
+			function:=functions[i].(func(Context))
+			function(ctx)
+		}
+
 	} else {
 		// if static-alias does not exist, using default mode
 		if staticExist(path) {

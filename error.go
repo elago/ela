@@ -11,7 +11,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 	f, _ := getController(fmt.Sprintf("@%d", status))
 
 	if f != nil && !useDefault {
-		function := f.(func(Context, error))
+		functions := f.([]interface{})
 
 		defer func() {
 
@@ -23,7 +23,12 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		}()
 
 		ctx.SetStatus(status)
-		function(ctx, errors.New(err))
+
+		// just get and run first controller
+		if len(functions) >= 1 {
+			function:=functions[0].(func(Context, error))
+			function(ctx, errors.New(err))
+		}
 
 	} else {
 		ctx.SetHeader("Content-Type", "text/html")

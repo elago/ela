@@ -9,7 +9,7 @@ import (
 func TestRouter(t *testing.T) {
 	log.Debug = true
 	Convey("Router sections", t, func() {
-		Router("/:hello/:world/123", 123)
+		Router("/:hello/:world/123", 123, 456)
 		Router("/:hello/123", 1234)
 		Router("/", "index")
 		ctrl1, param1 := getController("/param1/param2/123")
@@ -24,9 +24,10 @@ func TestRouter(t *testing.T) {
 
 		getArgs("/param1/param2/123", "/:hello/:world/123")
 
-		So(ctrl1, ShouldEqual, 123)
-		So(ctrl2, ShouldEqual, 1234)
-		So(ctrl3, ShouldEqual, "index")
+		So(ctrl1, ShouldContain, 123)
+		So(ctrl1, ShouldContain, 456)
+		So(ctrl2, ShouldContain, 1234)
+		So(ctrl3, ShouldContain, "index")
 		So(param1["hello"], ShouldEqual, "param1")
 		So(param1["world"], ShouldEqual, "param2")
 	})

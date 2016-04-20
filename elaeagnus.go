@@ -9,7 +9,7 @@ const (
 )
 
 var (
-	config = NewConfig("conf/app.ini")
+	config = NewEmptyConfig()
 )
 
 func Version() string {

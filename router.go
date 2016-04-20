@@ -10,7 +10,7 @@ type uriMode struct {
 	mode int         // 0:direct mode; 1:arg parse mode
 	exp  string      // parsed uri pattern
 	raw  string      // raw request uri
-	fun  interface{} // controller
+	fun  []interface{} // controller
 }
 
 var uriMapping map[string]uriMode
@@ -19,13 +19,23 @@ func init() {
 	uriMapping = make(map[string]uriMode)
 }
 
+// execute before action
+func BeforeRouter(f interface{}){
+
+}
+
 // put uri-func mapping into map
-func Router(uri string, f interface{}) {
+func Router(uri string, f ... interface{}) {
 	if isArgMode(uri) {
 		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f}
 	} else {
 		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f}
 	}
+}
+
+// execute after action
+func AfterRouter(f interface{}){
+
 }
 
 // get controller from router map

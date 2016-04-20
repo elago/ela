@@ -20,9 +20,20 @@ type Config struct {
 }
 
 func NewConfig(path string) Config {
-	conf := Config{path: path}
+	conf:=newConfig()
+	conf.path = path
 	conf.parseIniFile()
 	return conf
+}
+
+func NewEmptyConfig() Config {
+	return newConfig()
+}
+
+func newConfig() Config {
+	cfg := Config{}
+	cfg.conf = map[string]map[string]interface{}{}
+	return cfg
 }
 
 func (cfg *Config) ReloadConfig(path string) {
@@ -53,7 +64,6 @@ func (cfg *Config) arraylize() []string {
 // parse array items as config items
 func (cfg *Config) parseItems() {
 	count := len(cfg.rawArrayContainer)
-	cfg.conf = map[string]map[string]interface{}{}
 	cfg.conf["_"] = map[string]interface{}{}
 	cfg.warning = nil
 
