@@ -44,6 +44,10 @@ func (ctx *Context) SetHeader(key, value string) {
 	ctx.headerMap[key] = value
 }
 
+func (ctx *Context) Redirect(url string) {
+	http.Redirect(ctx.w, ctx.r, url, 302)
+}
+
 func (ctx *Context) GetCookie(key string) (*http.Cookie, error) {
 	return ctx.r.Cookie(key)
 }

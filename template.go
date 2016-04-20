@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"strings"
+	"sort"
 )
 
 var (
@@ -88,6 +89,8 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 		return nil, fmt.Errorf("html/template: no files named in call to ParseFiles")
 	}
 
+	sort.Strings(filenames)
+
 	for _, filename := range filenames {
 		if t == nil {
 			t = template.New(filename)
@@ -96,6 +99,11 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 			t = t.New(filename)
 		}
 		_, err = t.Funcs(funcMap).Parse(templates[filename])
+
+		// anyone template syntax error throw panic
+		if err!=nil {
+			panic(err)
+		}
 	}
 	return t, err
 }

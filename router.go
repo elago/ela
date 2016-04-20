@@ -12,6 +12,9 @@ type uriMode struct {
 	exp  string      // parsed uri pattern
 	raw  string      // raw request uri
 	fun  []interface{} // controller
+	argsMap map[string]string // args map
+	withBefore bool // with before controller
+	withAfter bool // with after controller
 }
 
 var(
@@ -32,22 +35,32 @@ func AfterController(f interface{})  {
 	afterRouter(f)
 }
 
+func InstallRouter(uri string, f ... interface{})  {
+	if strings.HasPrefix(uri,"@") {
+		panic("@ should not be prefix of uri")
+	}else if !strings.HasPrefix(uri, "/") {
+		panic("uri should begin with /")
+	}else {
+		router(uri, false, false, f ...)
+	}
+}
+
 func Router(uri string, f ... interface{}){
 	if strings.HasPrefix(uri,"@") {
 		panic("@ should not be prefix of uri")
 	}else if !strings.HasPrefix(uri, "/") {
 		panic("uri should begin with /")
 	}else {
-		router(uri, f ...)
+		router(uri, true, true, f ...)
 	}
 }
 
 func NotFountError(f interface{}){
-	router("@404", f)
+	router("@404",false,false, f)
 }
 
 func InternalError(f interface{}){
-	router("@500", f)
+	router("@500",false,false, f)
 }
 
 // execute before action
@@ -56,11 +69,11 @@ func beforeRouter(f interface{}){
 }
 
 // put uri-func mapping into map
-func router(uri string, f ... interface{}) {
+func router(uri string, withBefore bool, withAfter bool, f ... interface{}) {
 	if isArgMode(uri) {
-		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f}
+		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f, withBefore:withBefore, withAfter:withAfter}
 	} else {
-		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f}
+		uriMapping[uri] = uriMode{mode: 0, raw: uri, exp: uri, fun: f, withBefore:withBefore, withAfter:withAfter}
 	}
 }
 
@@ -70,13 +83,13 @@ func afterRouter(f interface{}){
 }
 
 // get controller from router map
-func getController(uri string) (interface{}, map[string]string) {
+func getController(uri string) interface{} {
 
 	// using direct match mode
 	for k := range uriMapping {
 		routerElement := uriMapping[k]
 		if routerElement.mode == 0 && routerElement.raw == uri {
-			return routerElement.fun, nil
+			return routerElement
 		}
 	}
 
@@ -96,12 +109,13 @@ func getController(uri string) (interface{}, map[string]string) {
 			matched, _ := regexp.MatchString(expression, uri)
 			if matched {
 				argMap, _ := getArgs(uri, routerElement.raw)
-				return routerElement.fun, argMap
+				routerElement.argsMap = argMap
+				return routerElement
 			}
 		}
 	}
 
-	return nil, nil
+	return nil
 }
 
 func isArgMode(uri string) bool {

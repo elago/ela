@@ -8,10 +8,18 @@ import (
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
-	f, _ := getController(fmt.Sprintf("@%d", status))
+	controller:=getController(fmt.Sprintf("@%d", status))
+
+	if controller==nil {
+		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+		return
+	}
+
+	routerElement:=controller.(uriMode)
+	f:=routerElement.fun
 
 	if f != nil && !useDefault {
-		functions := f.([]interface{})
+		functions := f
 
 		defer func() {
 

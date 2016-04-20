@@ -12,9 +12,15 @@ func TestRouter(t *testing.T) {
 		Router("/:hello/:world/123", 123, 456)
 		Router("/:hello/123", 1234)
 		Router("/", "index")
-		ctrl1, param1 := getController("/param1/param2/123")
-		ctrl2, param2 := getController("/param1/123")
-		ctrl3, param3 := getController("/")
+		node1:= getController("/param1/param2/123").(uriMode)
+		ctrl1:=node1.fun
+		param1:=node1.argsMap
+		node2:=getController("/param1/123").(uriMode)
+		ctrl2:=node2.fun
+		param2 :=node2.argsMap
+		node3:=getController("/").(uriMode)
+		ctrl3:=node3.fun
+		param3 := node3.argsMap
 		log.Greenln(ctrl1)
 		log.Greenln(param1)
 		log.Greenln(ctrl2)
