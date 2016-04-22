@@ -1,9 +1,9 @@
 package ela
 
 import (
-	"github.com/gogather/com"
-	// "github.com/gogather/com/log"
 	"fmt"
+	"github.com/gogather/com"
+	//"github.com/gogather/com/log"
 	"html/template"
 	"io/ioutil"
 	"sort"
@@ -20,7 +20,7 @@ var (
 
 func init() {
 	templates = make(map[string]string)
-	templatefolder = `view`
+	templatefolder = config.GetStringDefault("_", "template", "web/view")
 	listFile(templatefolder)
 
 	// initialize template functions
@@ -106,6 +106,13 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 		}
 	}
 	return t, err
+}
+
+func SetTemplateDir(dir string) {
+	exist := com.FileExist(dir)
+	if exist {
+		templatefolder = dir
+	}
 }
 
 // add template function definition

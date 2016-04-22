@@ -127,8 +127,8 @@ func servController(path string, ctx Context) {
 		// execute controllers
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
-				function := functions[i].(func(Context))
-				function(ctx)
+				function := functions[i]
+				function.(func(Context))(ctx)
 			}
 		}
 
