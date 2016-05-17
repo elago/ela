@@ -35,8 +35,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		// just get and execute first controller
 		if len(functions) >= 1 {
 			function := functions[0]
-			Use(errors.New(err))
-			injectFuc(function)
+			injectFuc(function, errors.New(err))
 		}
 
 	} else {

@@ -12,16 +12,19 @@ import (
 
 var (
 	middlewares []interface{}
-	inj         = inject.New()
 )
 
 func Use(middleware interface{}) {
 	middlewares = append(middlewares, middleware)
 }
 
-func injectFuc(fun interface{}) {
+func injectFuc(fun interface{}, mid ...interface{}) {
+	inj := inject.New()
 	for i := 0; i < len(middlewares); i++ {
 		inj.Map(middlewares[i])
+	}
+	for i := 0; i < len(mid); i++ {
+		inj.Map(mid[i])
 	}
 	inj.Invoke(fun)
 }
