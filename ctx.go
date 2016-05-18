@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+type Locale interface {
+	Language() string
+	Tr(string) string
+}
+
 // RequestContext
 type Context struct {
 	w         ResponseWriter
@@ -13,6 +18,7 @@ type Context struct {
 	status    int
 	headerMap map[string]string
 	uriParams map[string]string
+	Locale
 }
 
 func (ctx *Context) GetResponseWriter() ResponseWriter {

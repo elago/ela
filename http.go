@@ -2,12 +2,32 @@ package ela
 
 import (
 	"fmt"
+	"github.com/codegangsta/inject"
 	"github.com/gogather/com/log"
 	"net/http"
 	"regexp"
 	"runtime"
 	"strings"
 )
+
+var (
+	middlewares []interface{}
+)
+
+func Use(middleware interface{}) {
+	middlewares = append(middlewares, middleware)
+}
+
+func injectFuc(fun interface{}, mid ...interface{}) {
+	inj := inject.New()
+	for i := 0; i < len(middlewares); i++ {
+		inj.Map(middlewares[i])
+	}
+	for i := 0; i < len(mid); i++ {
+		inj.Map(mid[i])
+	}
+	inj.Invoke(fun)
+}
 
 func servHTTP(port int) {
 	log.Pinkf("[ela] Listen Port %d\n", port)
@@ -27,6 +47,9 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx.r = r
 	ctx.Data = make(map[string]interface{})
 	ctx.SetStatus(200)
+
+	// ctx as middleware
+	Use(ctx)
 
 	// parse router and call action
 	path := r.URL.String()
@@ -120,22 +143,20 @@ func servController(path string, ctx Context) {
 
 		// execute before controllers
 		if beforeController != nil && routerElement.withBefore {
-			before := beforeController.(func(Context))
-			before(ctx)
+			injectFuc(beforeController)
 		}
 
 		// execute controllers
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
 				function := functions[i]
-				function.(func(Context))(ctx)
+				injectFuc(function)
 			}
 		}
 
 		// execute after controllers
 		if afterController != nil && routerElement.withBefore {
-			after := afterController.(func(Context))
-			after(ctx)
+			injectFuc(afterController)
 		}
 
 	} else {
