@@ -19,19 +19,19 @@ type Config struct {
 	warning           []string
 }
 
-func NewConfig(path string) Config {
+func NewConfig(path string) *Config {
 	conf := newConfig()
 	conf.path = path
 	conf.parseIniFile()
 	return conf
 }
 
-func NewEmptyConfig() Config {
+func NewEmptyConfig() *Config {
 	return newConfig()
 }
 
-func newConfig() Config {
-	cfg := Config{}
+func newConfig() *Config {
+	cfg := &Config{}
 	cfg.conf = map[string]map[string]interface{}{}
 	return cfg
 }

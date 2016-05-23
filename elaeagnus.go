@@ -21,7 +21,7 @@ func SetConfig(path string) {
 }
 
 func GetConfig() *Config {
-	return &config
+	return config
 }
 
 func Run() {
