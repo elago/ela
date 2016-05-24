@@ -52,7 +52,7 @@ func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	Use(ctx)
 
 	// parse router and call action
-	path := r.URL.String()
+	path := parseURI(r.URL.String())
 
 	// recording request log
 	requestLog(ctx)

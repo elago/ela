@@ -29,6 +29,8 @@ func TestRouter(t *testing.T) {
 		log.Greenln(param3)
 
 		getArgs("/param1/param2/123", "/:hello/:world/123")
+		uri := parseURI("/test?hello=world")
+		log.Greenln(uri)
 
 		So(ctrl1, ShouldContain, 123)
 		So(ctrl1, ShouldContain, 456)
@@ -36,6 +38,7 @@ func TestRouter(t *testing.T) {
 		So(ctrl3, ShouldContain, "index")
 		So(param1["hello"], ShouldEqual, "param1")
 		So(param1["world"], ShouldEqual, "param2")
+		So(uri, ShouldEqual, "/test")
 	})
 
 }

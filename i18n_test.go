@@ -9,9 +9,10 @@ import (
 func TestI18n(t *testing.T) {
 	Convey("I18n sections", t, func() {
 		i18n := NewI18n("etc/locale")
+		i18n.SetLang("zh_CN")
 
-		hello := i18n.Tr("zh_CN", "_", "hello")
-		world := i18n.Tr("zh_CN", "_", "world")
+		hello := i18n.Tr("hello")
+		world := i18n.Tr("world")
 
 		fmt.Println(hello)
 		fmt.Println(world)
@@ -25,8 +26,8 @@ func TestI18n(t *testing.T) {
 
 		i18ne.Load("etc/locale")
 
-		hello1 := i18n.Tr("zh_CN", "_", "hello")
-		world1 := i18n.Tr("zh_CN", "_", "world")
+		hello1 := i18n.Tr("_", "hello")
+		world1 := i18n.Tr("_", "world")
 
 		fmt.Println(hello1)
 		fmt.Println(world1)

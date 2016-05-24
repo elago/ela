@@ -76,6 +76,7 @@ func beforeRouter(f interface{}) {
 
 // put uri-func mapping into map
 func router(uri string, withBefore bool, withAfter bool, f ...interface{}) {
+	uri = parseURI(uri)
 	if isArgMode(uri) {
 		uriMapping[uri] = uriMode{mode: 1, raw: uri, exp: getArgParseExp(uri), fun: f, withBefore: withBefore, withAfter: withAfter}
 	} else {
@@ -172,4 +173,9 @@ func getArgs(raw, pattern string) (map[string]string, error) {
 	}
 
 	return argsMap, nil
+}
+
+func parseURI(url string) string {
+	reg := regexp.MustCompile(`(\?[\d\D]*)$`)
+	return reg.ReplaceAllString(url, "")
 }
