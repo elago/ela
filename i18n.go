@@ -13,16 +13,19 @@ type I18n struct {
 	data     map[string]*Config
 }
 
+// new an empty i18n module
 func NewEmptyI18n() *I18n {
 	return &I18n{}
 }
 
+// new an i18n module
 func NewI18n(basePath string) *I18n {
 	i18n := NewEmptyI18n()
 	i18n.Load(basePath)
 	return i18n
 }
 
+// load i18n files for i18n module
 func (i *I18n) Load(basePath string) error {
 	stat, err := os.Stat(filepath.Join(basePath))
 	if err != nil {

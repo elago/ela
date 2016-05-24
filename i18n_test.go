@@ -18,6 +18,21 @@ func TestI18n(t *testing.T) {
 
 		So(hello, ShouldEqual, "你好")
 		So(world, ShouldEqual, "世界")
+
+		i18ne := NewEmptyI18n()
+
+		So(i18ne, ShouldNotBeNil)
+
+		i18ne.Load("etc/locale")
+
+		hello1 := i18n.Tr("zh_CN", "_", "hello")
+		world1 := i18n.Tr("zh_CN", "_", "world")
+
+		fmt.Println(hello1)
+		fmt.Println(world1)
+
+		So(hello1, ShouldEqual, "你好")
+		So(world1, ShouldEqual, "世界")
 	})
 
 }
