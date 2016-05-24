@@ -153,20 +153,23 @@ func servController(path string, ctx Context) {
 
 		// execute before controllers
 		if beforeController != nil && routerElement.withBefore {
-			injectFuc(beforeController)
+			_, err := injectFuc(beforeController)
+			log.Redf("injection failed: %s\n", err)
 		}
 
 		// execute controllers
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
 				function := functions[i]
-				injectFuc(function)
+				_, err := injectFuc(function)
+				log.Redf("injection failed: %s\n", err)
 			}
 		}
 
 		// execute after controllers
 		if afterController != nil && routerElement.withBefore {
-			injectFuc(afterController)
+			_, err := injectFuc(afterController)
+			log.Redf("injection failed: %s\n", err)
 		}
 
 	} else {

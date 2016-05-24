@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gogather/com"
+	"github.com/gogather/com/log"
 	"strings"
 )
 
@@ -35,7 +36,8 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		// just get and execute first controller
 		if len(functions) >= 1 {
 			function := functions[0]
-			injectFuc(function, errors.New(err))
+			_, err := injectFuc(function, errors.New(err))
+			log.Redf("injection failed: %s\n", err)
 		}
 
 	} else {

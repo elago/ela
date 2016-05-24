@@ -4,7 +4,7 @@ import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
-	"net/http/httptest"
+	// "net/http/httptest"
 	"testing"
 )
 
@@ -37,6 +37,7 @@ func TestI18n(t *testing.T) {
 		So(hello1, ShouldEqual, "你好")
 		So(world1, ShouldEqual, "世界")
 
+		// todo
 		mux := http.NewServeMux()
 		mux.HandleFunc("/sendstrailers", func(w http.ResponseWriter, req *http.Request) {
 			ctx := Context{}
