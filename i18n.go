@@ -27,10 +27,13 @@ func NewI18n(basePath string) *I18n {
 	return i18n
 }
 
-func InitModule(ctx *Context, basePath string) *I18n {
+func InitI18nModule(basePath string) func(*Context) *I18n {
 	i18n := NewI18n(basePath)
-	i18n.initModule(ctx)
-	return i18n
+
+	return func(ctx *Context) *I18n {
+		i18n.initModule(ctx)
+		return i18n
+	}
 }
 
 // load i18n files for i18n module
@@ -99,7 +102,7 @@ func (i *I18n) Tr(args ...string) string {
 	}
 }
 
-func (i *I18n) InitI18nModule(ctx *Context) {
+func (i *I18n) initModule(ctx *Context) {
 	lang := ctx.GetParam("lang")
 	if strings.TrimSpace(lang) == "" {
 		lang = ctx.GetCookie("lang")

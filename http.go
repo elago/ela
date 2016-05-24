@@ -5,6 +5,7 @@ import (
 	"github.com/codegangsta/inject"
 	"github.com/gogather/com/log"
 	"net/http"
+	"reflect"
 	"regexp"
 	"runtime"
 	"strings"
@@ -15,10 +16,19 @@ var (
 )
 
 func Use(middleware interface{}) {
+	t := reflect.TypeOf(middleware)
+	if t.Kind() == reflect.Func {
+		result, err := injectFuc(middleware)
+		if err != nil {
+			log.Redf("injection failed: %s\n", err)
+		} else {
+			middleware = result[0]
+		}
+	}
 	middlewares = append(middlewares, middleware)
 }
 
-func injectFuc(fun interface{}, mid ...interface{}) {
+func injectFuc(fun interface{}, mid ...interface{}) ([]reflect.Value, error) {
 	inj := inject.New()
 	for i := 0; i < len(middlewares); i++ {
 		inj.Map(middlewares[i])
@@ -26,7 +36,7 @@ func injectFuc(fun interface{}, mid ...interface{}) {
 	for i := 0; i < len(mid); i++ {
 		inj.Map(mid[i])
 	}
-	inj.Invoke(fun)
+	return inj.Invoke(fun)
 }
 
 func servHTTP(port int) {
