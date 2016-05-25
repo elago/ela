@@ -221,3 +221,12 @@ func (ctx *Context) GetURIParamDefault(key string, defaultValue string) string {
 		return value
 	}
 }
+
+func newContext(w http.ResponseWriter, r *http.Request) Context {
+	ctx := Context{}
+	ctx.w = NewResponseWriter(w)
+	ctx.r = r
+	ctx.Data = make(map[string]interface{})
+	ctx.SetStatus(200)
+	return ctx
+}

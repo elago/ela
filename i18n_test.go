@@ -1,10 +1,12 @@
 package ela
 
 import (
+	"bytes"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	"io/ioutil"
 	"net/http"
-	// "net/http/httptest"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -38,17 +40,23 @@ func TestI18n(t *testing.T) {
 		So(world1, ShouldEqual, "世界")
 
 		// todo
-		mux := http.NewServeMux()
-		mux.HandleFunc("/sendstrailers", func(w http.ResponseWriter, req *http.Request) {
-			ctx := Context{}
-			ctx.w = NewResponseWriter(w)
-			ctx.r = req
-			ctx.Data = make(map[string]interface{})
 
-			fmt.Println("...")
-			Use(&ctx)
-			Use(InitI18nModule("etc/locale"))
+		Router("/", func(ctx *Context) {
+			fmt.Println("ctrl test")
 		})
+
+		fmt.Println(middlewares)
+
+		Use(InitI18nModule("etc/locale"))
+
+		fmt.Println(middlewares)
+
+		resp := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/", nil)
+		req.Body = ioutil.NopCloser(bytes.NewBufferString("This is my request body"))
+		// So(err, ShouldBeNil)
+		m := elaHandler{}
+		m.ServeHTTP(resp, req)
 
 	})
 

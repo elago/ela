@@ -12,7 +12,9 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 	controller := getController(fmt.Sprintf("@%d", status))
 
 	if controller == nil {
-		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+		ctx.SetHeader("Content-Type", "text/html")
+		ctx.SetStatus(status)
+		ctx.Write(err)
 		return
 	}
 

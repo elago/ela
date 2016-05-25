@@ -11,23 +11,6 @@ import (
 	"strings"
 )
 
-var (
-	middlewares []interface{}
-)
-
-func Use(middleware interface{}) {
-	t := reflect.TypeOf(middleware)
-	if t.Kind() == reflect.Func {
-		result, err := injectFuc(middleware)
-		if err != nil {
-			log.Redf("injection failed: %s\n", err)
-		} else {
-			middleware = result[0]
-		}
-	}
-	middlewares = append(middlewares, middleware)
-}
-
 func injectFuc(fun interface{}, mid ...interface{}) ([]reflect.Value, error) {
 	inj := inject.New()
 	for i := 0; i < len(middlewares); i++ {
@@ -52,14 +35,28 @@ type elaHandler struct{}
 
 func (*elaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
-	ctx := Context{}
-	ctx.w = NewResponseWriter(w)
-	ctx.r = r
-	ctx.Data = make(map[string]interface{})
-	ctx.SetStatus(200)
+	ctx := newContext(w, r)
 
 	// ctx as middleware
-	Use(ctx)
+	var mids []interface{}
+	mids = append(mids, &ctx)
+
+	for i := 0; i < len(middlewares); i++ {
+		mid := middlewares[i]
+		t := reflect.TypeOf(mid)
+		if t.Kind() == reflect.Func {
+			// fmt.Println(t)
+			result, err := injectFuc(mid, &ctx)
+			if err != nil {
+				log.Redf("injection failed: %s :L51\n", err)
+			} else {
+				mid = result[0]
+			}
+		}
+		mids = append(mids, mid)
+	}
+
+	middlewares = mids
 
 	// parse router and call action
 	path := parseURI(r.URL.String())
@@ -161,6 +158,7 @@ func servController(path string, ctx Context) {
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
 				function := functions[i]
+				fmt.Println(middlewares)
 				_, err := injectFuc(function)
 				log.Redf("injection failed: %s\n", err)
 			}
