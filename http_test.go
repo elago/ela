@@ -21,8 +21,9 @@ func action(m MidStruct1, t *testing.T) {
 func TestInjection(t *testing.T) {
 	log.Debug = true
 	Convey("Injection sections", t, func() {
-		Use(MidStruct1{name: "lee", age: 24})
-		Use(&testing.T{})
+		e := Web()
+		e.Use(MidStruct1{name: "lee", age: 24})
+		e.Use(&testing.T{})
 		injectFuc(action)
 	})
 

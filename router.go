@@ -48,17 +48,6 @@ func InstallRouter(uri string, f ...interface{}) {
 	}
 }
 
-// define a serials controller as main controller for an uri pattern
-func Router(uri string, f ...interface{}) {
-	if strings.HasPrefix(uri, "@") {
-		panic("@ should not be prefix of uri")
-	} else if !strings.HasPrefix(uri, "/") {
-		panic("uri should begin with /")
-	} else {
-		router(uri, true, true, f...)
-	}
-}
-
 // define a controller for file not found error
 func NotFountError(f interface{}) {
 	router("@404", false, false, f)

@@ -1,7 +1,7 @@
 package ela
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
 	"github.com/gogather/com"
 	"github.com/gogather/com/log"
@@ -25,7 +25,6 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		functions := f
 
 		defer func() {
-
 			if r := recover(); r != nil {
 				ctx.SetHeader("Content-Type", "text/html")
 				ctx.SetStatus(status)
@@ -38,7 +37,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		// just get and execute first controller
 		if len(functions) >= 1 {
 			function := functions[0]
-			_, err := injectFuc(function, errors.New(err))
+			_, err := injectFuc(function, err)
 			log.Redf("injection failed: %s\n", err)
 		}
 

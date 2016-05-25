@@ -40,22 +40,20 @@ func TestI18n(t *testing.T) {
 		So(world1, ShouldEqual, "世界")
 
 		// todo
-
-		Router("/", func(ctx *Context) {
+		e := Web()
+		e.Use(InitI18nModule("etc/locale"))
+		e.Router("/", func(ctx *Context) {
 			fmt.Println("ctrl test")
 		})
 
-		fmt.Println(middlewares)
-
-		Use(InitI18nModule("etc/locale"))
-
-		fmt.Println(middlewares)
+		fmt.Println("III")
+		fmt.Println(e.middlewares)
 
 		resp := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/", nil)
 		req.Body = ioutil.NopCloser(bytes.NewBufferString("This is my request body"))
 		// So(err, ShouldBeNil)
-		m := elaHandler{}
+		m := elaeagnus{}
 		m.ServeHTTP(resp, req)
 
 	})

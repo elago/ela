@@ -9,9 +9,10 @@ import (
 func TestRouter(t *testing.T) {
 	log.Debug = true
 	Convey("Router sections", t, func() {
-		Router("/:hello/:world/123", 123, 456)
-		Router("/:hello/123", 1234)
-		Router("/", "index")
+		e := Web()
+		e.Router("/:hello/:world/123", 123, 456)
+		e.Router("/:hello/123", 1234)
+		e.Router("/", "index")
 		node1 := getController("/param1/param2/123").(uriMode)
 		ctrl1 := node1.fun
 		param1 := node1.argsMap
