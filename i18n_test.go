@@ -53,7 +53,7 @@ func TestI18n(t *testing.T) {
 		req, _ := http.NewRequest("GET", "/", nil)
 		req.Body = ioutil.NopCloser(bytes.NewBufferString("This is my request body"))
 		// So(err, ShouldBeNil)
-		m := elaeagnus{}
+		m := Web()
 		m.ServeHTTP(resp, req)
 
 	})

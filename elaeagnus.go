@@ -24,16 +24,16 @@ var (
 )
 
 // Http handler
-type elaeagnus struct {
+type Elaeagnus struct {
 	middlewares []interface{}
 }
 
-func Web() *elaeagnus {
-	return &elaeagnus{}
+func Web() *Elaeagnus {
+	return &Elaeagnus{}
 }
 
 // define a serials controller as main controller for an uri pattern
-func (ela *elaeagnus) Router(uri string, f ...interface{}) {
+func (ela *Elaeagnus) Router(uri string, f ...interface{}) {
 	if strings.HasPrefix(uri, "@") {
 		panic("@ should not be prefix of uri")
 	} else if !strings.HasPrefix(uri, "/") {
@@ -43,7 +43,7 @@ func (ela *elaeagnus) Router(uri string, f ...interface{}) {
 	}
 }
 
-func (ela *elaeagnus) execInjection() {
+func (ela *Elaeagnus) execInjection() {
 	var mids []interface{}
 
 	for i := 0; i < len(ela.middlewares); i++ {
@@ -64,7 +64,7 @@ func (ela *elaeagnus) execInjection() {
 	ela.middlewares = mids
 }
 
-func (ela *elaeagnus) parseInjectionObject(mid interface{}) interface{} {
+func (ela *Elaeagnus) parseInjectionObject(mid interface{}) interface{} {
 	t := reflect.TypeOf(mid)
 	if t.Kind() == reflect.Func {
 		result, err := injectFuc(mid, ela.middlewares)
@@ -80,7 +80,7 @@ func (ela *elaeagnus) parseInjectionObject(mid interface{}) interface{} {
 	}
 }
 
-func (ela *elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
 	ctx := newContext(w, r)
 
@@ -145,7 +145,7 @@ func (ela *elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	responseLog(ctx)
 }
 
-func (ela *elaeagnus) servHTTP(port int) {
+func (ela *Elaeagnus) servHTTP(port int) {
 	log.Pinkf("[ela] Listen Port %d\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), ela)
 	if err != nil {
@@ -153,7 +153,7 @@ func (ela *elaeagnus) servHTTP(port int) {
 	}
 }
 
-func (ela *elaeagnus) servController(path string, ctx Context) {
+func (ela *Elaeagnus) servController(path string, ctx Context) {
 	controller := getController(path)
 	if controller == nil {
 		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
@@ -227,11 +227,11 @@ func (ela *elaeagnus) servController(path string, ctx Context) {
 	}
 }
 
-func (ela *elaeagnus) Run() {
+func (ela *Elaeagnus) Run() {
 	ela.servHTTP(int(config.GetIntDefault("_", "port", 3000)))
 }
 
-func (ela *elaeagnus) Use(middleware interface{}) {
+func (ela *Elaeagnus) Use(middleware interface{}) {
 	ela.middlewares = append(ela.middlewares, middleware)
 }
 
