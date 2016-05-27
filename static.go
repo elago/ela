@@ -15,7 +15,7 @@ func init() {
 	staticDirectory = config.GetStringDefault("static", "path", "static")
 }
 
-func staticServ(uri string, ctx Context) {
+func staticServ(uri string, ctx *Context) {
 	path := uri
 	stat, err := os.Stat(filepath.Join(staticDirectory, path))
 	if err != nil {
@@ -34,7 +34,7 @@ func staticServ(uri string, ctx Context) {
 
 }
 
-func servPath(path string, ctx Context) {
+func servPath(path string, ctx *Context) {
 	writer := ctx.w
 	request := ctx.r
 	FileSystem := newStaticFileSystem(staticDirectory)

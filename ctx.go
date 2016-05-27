@@ -148,7 +148,7 @@ func (ctx *Context) serveTemplateWithStatus(templateFile string, status int, use
 
 	if err != nil {
 		content := "<h2>Server Internal Error!</h2>\n\n" + fmt.Sprintln(err)
-		servError(*ctx, content, 500, useDefaultError)
+		servError(ctx, content, 500, useDefaultError)
 	} else {
 
 		if status == 404 {
@@ -161,7 +161,7 @@ func (ctx *Context) serveTemplateWithStatus(templateFile string, status int, use
 
 		if err != nil {
 			content := "<h2>Server Internal Error!</h2>\n\n" + fmt.Sprintf("<pre>%s</pre>", fmtErrorHtml(err.Error()))
-			servError(*ctx, content, 500, useDefaultError)
+			servError(ctx, content, 500, useDefaultError)
 		}
 	}
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func servError(ctx Context, err string, status int, useDefault bool) {
+func servError(ctx *Context, err string, status int, useDefault bool) {
 	inj := newInjection()
 
 	controller := getController(fmt.Sprintf("@%d", status))
@@ -40,7 +40,7 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		// just get and execute first controller
 		if len(functions) >= 1 {
 			function := functions[0]
-			inj.headMiddleware(&ctx)
+			inj.headMiddleware(ctx)
 			inj.appendMiddleware(err)
 			_, err := inj.injectFuc(function)
 			if err != nil {

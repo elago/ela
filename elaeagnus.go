@@ -62,9 +62,9 @@ func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		special := specialStatic[i]
 		if path == special {
 			if staticExist(path) {
-				staticServ(path, ctx)
+				staticServ(path, &ctx)
 			} else {
-				servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+				servError(&ctx, "<h2>404, File Not Exist</h2>", 404, false)
 			}
 
 			// recording response log
@@ -82,9 +82,9 @@ func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			path = reg.ReplaceAllString(path, "/"+staticDirectory)
 
 			if staticExist(rpath) {
-				staticServ(rpath, ctx)
+				staticServ(rpath, &ctx)
 			} else {
-				servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+				servError(&ctx, "<h2>404, File Not Exist</h2>", 404, false)
 			}
 
 			// recording response log
@@ -111,7 +111,7 @@ func (ela *Elaeagnus) servHTTP(port int) {
 func (ela *Elaeagnus) servController(path string, ctx Context) {
 	controller := getController(path)
 	if controller == nil {
-		servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+		servError(&ctx, "<h2>404, File Not Exist</h2>", 404, false)
 		return
 	}
 
@@ -140,7 +140,7 @@ func (ela *Elaeagnus) servController(path string, ctx Context) {
 				log.Redln(r)
 				log.Yellowln(stack)
 
-				servError(ctx, content, 500, false)
+				servError(&ctx, content, 500, false)
 				return
 			}
 		}()
@@ -175,9 +175,9 @@ func (ela *Elaeagnus) servController(path string, ctx Context) {
 	} else {
 		// if static-alias does not exist, using default mode
 		if staticExist(path) {
-			staticServ(path, ctx)
+			staticServ(path, &ctx)
 		} else {
-			servError(ctx, "<h2>404, File Not Exist</h2>", 404, false)
+			servError(&ctx, "<h2>404, File Not Exist</h2>", 404, false)
 		}
 	}
 }
