@@ -27,18 +27,32 @@ func init() {
 	uriMapping = make(map[string]uriMode)
 }
 
+type _router struct {
+}
+
+// define a serials controller as main controller for an uri pattern
+func (r *_router) Router(uri string, f ...interface{}) {
+	if strings.HasPrefix(uri, "@") {
+		panic("@ should not be prefix of uri")
+	} else if !strings.HasPrefix(uri, "/") {
+		panic("uri should begin with /")
+	} else {
+		router(uri, true, true, f...)
+	}
+}
+
 // define a controller run before main controller
-func BeforeController(f interface{}) {
+func (r *_router) BeforeController(f interface{}) {
 	beforeRouter(f)
 }
 
 // define a controller run after main controller
-func AfterController(f interface{}) {
+func (r *_router) AfterController(f interface{}) {
 	afterRouter(f)
 }
 
 // define a controller run without beforeController and afterController, some time used for installing mode
-func InstallRouter(uri string, f ...interface{}) {
+func (r *_router) InstallRouter(uri string, f ...interface{}) {
 	if strings.HasPrefix(uri, "@") {
 		panic("@ should not be prefix of uri")
 	} else if !strings.HasPrefix(uri, "/") {
@@ -49,12 +63,12 @@ func InstallRouter(uri string, f ...interface{}) {
 }
 
 // define a controller for file not found error
-func NotFountError(f interface{}) {
+func (r *_router) NotFountError(f interface{}) {
 	router("@404", false, false, f)
 }
 
 // define a controller for server internal error
-func InternalError(f interface{}) {
+func (r *_router) InternalError(f interface{}) {
 	router("@500", false, false, f)
 }
 

@@ -28,23 +28,13 @@ var (
 // Http handler
 type Elaeagnus struct {
 	injector *injection
+	*_router
 }
 
 func Web() *Elaeagnus {
 	ela := &Elaeagnus{}
 	ela.injector = newInjection()
 	return ela
-}
-
-// define a serials controller as main controller for an uri pattern
-func (ela *Elaeagnus) Router(uri string, f ...interface{}) {
-	if strings.HasPrefix(uri, "@") {
-		panic("@ should not be prefix of uri")
-	} else if !strings.HasPrefix(uri, "/") {
-		panic("uri should begin with /")
-	} else {
-		router(uri, true, true, f...)
-	}
 }
 
 func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
