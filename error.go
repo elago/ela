@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"github.com/gogather/com"
 	"github.com/gogather/com/log"
-	"reflect"
+	// "reflect"
 	"strings"
 )
 
 func servError(ctx Context, err string, status int, useDefault bool) {
+	inj := newInjection()
+
 	controller := getController(fmt.Sprintf("@%d", status))
 
 	if controller == nil {
@@ -38,8 +40,9 @@ func servError(ctx Context, err string, status int, useDefault bool) {
 		// just get and execute first controller
 		if len(functions) >= 1 {
 			function := functions[0]
-			addMiddleware(err)
-			_, err := injectFuc(function, reflect.TypeOf(err))
+			inj.headMiddleware(&ctx)
+			inj.appendMiddleware(err)
+			_, err := inj.injectFuc(function)
 			if err != nil {
 				log.Redf("injection failed: %s\n", err)
 			}

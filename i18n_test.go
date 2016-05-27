@@ -47,7 +47,7 @@ func TestI18n(t *testing.T) {
 		})
 
 		fmt.Println("III")
-		fmt.Println(e.middlewares)
+		// fmt.Println(middlewares)
 
 		resp := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/", nil)

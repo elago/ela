@@ -2,10 +2,10 @@ package ela
 
 import (
 	"fmt"
-	"github.com/codegangsta/inject"
+
 	"github.com/gogather/com/log"
 	"net/http"
-	"reflect"
+	// "reflect"
 	"regexp"
 	"runtime"
 	"strings"
@@ -20,17 +20,20 @@ func Version() string {
 }
 
 var (
-	config          = NewEmptyConfig()
-	middlewares     = make(map[reflect.Type]interface{})
-	middlewaresName []reflect.Type
+	config = NewEmptyConfig()
+	// middlewares     = make(map[reflect.Type]interface{})
+	// middlewaresName []reflect.Type
 )
 
 // Http handler
 type Elaeagnus struct {
+	injector *injection
 }
 
 func Web() *Elaeagnus {
-	return &Elaeagnus{}
+	ela := &Elaeagnus{}
+	ela.injector = newInjection()
+	return ela
 }
 
 // define a serials controller as main controller for an uri pattern
@@ -44,58 +47,15 @@ func (ela *Elaeagnus) Router(uri string, f ...interface{}) {
 	}
 }
 
-func (ela *Elaeagnus) execInjection() {
-	var mids []reflect.Type
-	var midw interface{}
-
-	for i := 0; i < len(middlewaresName); i++ {
-		mid := middlewaresName[i]
-		if mid.Kind() == reflect.Func {
-			// get the finnal object as middleware object
-			midw = ela.parseInjectionObject(middlewares[mid])
-			ela.Use(midw)
-
-			if midw != nil {
-				mids = append(mids, mid)
-			}
-		} else {
-			ela.Use(middlewares[mid])
-			mids = append(mids, mid)
-		}
-
-	}
-
-	middlewaresName = mids
-}
-
-func (ela *Elaeagnus) parseInjectionObject(mid interface{}) interface{} {
-	t := reflect.TypeOf(mid)
-	if t.Kind() == reflect.Func {
-		result, err := injectFuc(mid, middlewaresName...)
-		if err != nil {
-			log.Redf("injection failed: %s :L51\n", err)
-			return nil
-		} else {
-			mid = result[0]
-			return ela.parseInjectionObject(mid)
-		}
-	} else {
-		return mid
-	}
-}
-
 func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// package ctx
 	ctx := newContext(w, r)
 
 	// add ctx in the head of middleware
-	var mids []reflect.Type
-	mids = append(mids, reflect.TypeOf(&ctx))
-	middlewaresName = append(mids, middlewaresName...)
-	ela.Use(&ctx)
+	ela.injector.headMiddleware(&ctx)
 
 	// execute injection
-	ela.execInjection()
+	ela.injector.parseInjectionObjects()
 
 	// parse router and call action
 	path := parseURI(r.URL.String())
@@ -152,7 +112,7 @@ func (ela *Elaeagnus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (ela *Elaeagnus) servHTTP(port int) {
 	log.Pinkf("[ela] Listen Port %d\n", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), &Elaeagnus{})
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), ela)
 	if err != nil {
 		fmt.Printf("HTTP Server Start Failed Port [%d]\n%s", port, err)
 	}
@@ -197,7 +157,7 @@ func (ela *Elaeagnus) servController(path string, ctx Context) {
 
 		// execute before controllers
 		if beforeController != nil && routerElement.withBefore {
-			_, err := injectFuc(beforeController, middlewaresName...)
+			_, err := ela.injector.injectFuc(beforeController)
 			if err != nil {
 				log.Redf("injection failed: %s\n", err)
 			}
@@ -207,7 +167,7 @@ func (ela *Elaeagnus) servController(path string, ctx Context) {
 		for i := 0; i < len(functions); i++ {
 			if !ctx.GetResponseWriter().HasFlushed() {
 				function := functions[i]
-				_, err := injectFuc(function, middlewaresName...)
+				_, err := ela.injector.injectFuc(function)
 				if err != nil {
 					log.Redf("injection failed: %s\n", err)
 				}
@@ -216,7 +176,7 @@ func (ela *Elaeagnus) servController(path string, ctx Context) {
 
 		// execute after controllers
 		if afterController != nil && routerElement.withBefore {
-			_, err := injectFuc(afterController, middlewaresName...)
+			_, err := ela.injector.injectFuc(afterController)
 			if err != nil {
 				log.Redf("injection failed: %s\n", err)
 			}
@@ -237,7 +197,7 @@ func (ela *Elaeagnus) Run() {
 }
 
 func (ela *Elaeagnus) Use(middleware interface{}) {
-	addMiddleware(middleware)
+	ela.injector.appendMiddleware(middleware)
 }
 
 func SetConfig(path string) {
@@ -246,27 +206,4 @@ func SetConfig(path string) {
 
 func GetConfig() *Config {
 	return config
-}
-
-func addMiddleware(middleware interface{}) {
-	t := reflect.TypeOf(middleware)
-	middlewares[t] = middleware
-	for i := 0; i < len(middlewaresName); i++ {
-		element := middlewaresName[i]
-		if element == t {
-			return
-		}
-	}
-	middlewaresName = append(middlewaresName, t)
-}
-
-func injectFuc(fun interface{}, mid ...reflect.Type) ([]reflect.Value, error) {
-	inj := inject.New()
-	for i := 0; i < len(mid); i++ {
-		element := mid[i]
-		if element.Kind() != reflect.Func {
-			inj.Map(middlewares[element])
-		}
-	}
-	return inj.Invoke(fun)
 }
