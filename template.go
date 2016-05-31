@@ -10,79 +10,81 @@ import (
 	"strings"
 )
 
-var (
+type Templates struct {
 	templates          map[string]string
 	templatesName      []string
 	templatefolder     string
 	templatesFilterOut []string
 	funcMap            template.FuncMap
-)
+}
 
-func init() {
-	templates = make(map[string]string)
-	templatefolder = config.GetStringDefault("_", "template", "web/view")
-	listFile(templatefolder)
+func NewTemplates(templatefolder string) {
+	t := Templates{}
+	t.templates = make(map[string]string)
+	t.templatefolder = templatefolder
+	// templatefolder := config.GetStringDefault("_", "template", "web/view")
+	t.listFile(templatefolder)
 
 	// initialize template functions
-	funcMap = template.FuncMap{}
-	AddTemplateFunc("tplFunc", tplFunc)
+	t.funcMap = template.FuncMap{}
+	t.AddTemplateFunc("tplFunc", t.tplFunc)
 }
 
-func reloadTemplate() {
-	listFile(templatefolder)
+func (t *Templates) reloadTemplate() {
+	t.listFile(t.templatefolder)
 }
 
-func addFilterOut(filename string) {
-	templatesFilterOut = append(templatesFilterOut, filename)
+func (t *Templates) addFilterOut(filename string) {
+	t.templatesFilterOut = append(t.templatesFilterOut, filename)
 }
 
-func notInFilterOut(filename string) bool {
-	for i := 0; i < len(templatesFilterOut); i++ {
-		if templatesFilterOut[i] == filename {
+func (t *Templates) notInFilterOut(filename string) bool {
+	for i := 0; i < len(t.templatesFilterOut); i++ {
+		if t.templatesFilterOut[i] == filename {
 			return false
 		}
 	}
 	return true
 }
 
-func listFile(dir string) {
-	addFilterOut(".DS_Store")
+func (t *Templates) listFile(dir string) {
+	t.addFilterOut(".DS_Store")
 
 	files, _ := ioutil.ReadDir(dir)
 	for _, file := range files {
 		subfile := dir + "/" + file.Name()
 		if file.IsDir() {
-			listFile(subfile)
-		} else if notInFilterOut(file.Name()) {
+			t.listFile(subfile)
+		} else if t.notInFilterOut(file.Name()) {
 			content, err := com.ReadFileString(subfile)
 			if err != nil {
-				templates[subfile] = ""
+				t.templates[subfile] = ""
 			} else {
 				content = "{{define \"" + subfile + "\"}}" + content + "{{end}}"
-				content = lefTplDir(content, templatefolder)
-				subfile = lefTplDir(subfile, templatefolder)
-				templates[subfile] = content
+				content = t.lefTplDir(content, t.templatefolder)
+				subfile = t.lefTplDir(subfile, t.templatefolder)
+				t.templates[subfile] = content
 			}
 		}
 	}
 
 	// get template name list
-	getTemplateNames()
+	t.getTemplateNames()
 }
 
-func getTemplateNames() {
-	templatesName = make([]string, 0, len(templates))
-	for k := range templates {
-		templatesName = append(templatesName, k)
+func (t *Templates) getTemplateNames() {
+	t.templatesName = make([]string, 0, len(t.templates))
+	for k := range t.templates {
+		t.templatesName = append(t.templatesName, k)
 	}
 }
 
-func lefTplDir(dir string, tplDir string) string {
+func (t *Templates) lefTplDir(dir string, tplDir string) string {
 	return strings.Replace(dir, tplDir+"/", "", 1)
 }
 
-func parseFiles(filenames ...string) (*template.Template, error) {
-	var t *template.Template = nil
+func (t *Templates) parseFiles(filenames ...string) (*template.Template, error) {
+	var temp *template.Template = nil
 	var err error = nil
 
 	if len(filenames) == 0 {
@@ -92,35 +94,35 @@ func parseFiles(filenames ...string) (*template.Template, error) {
 	sort.Strings(filenames)
 
 	for _, filename := range filenames {
-		if t == nil {
-			t = template.New(filename)
+		if temp == nil {
+			temp = template.New(filename)
 		}
-		if filename != t.Name() {
-			t = t.New(filename)
+		if filename != temp.Name() {
+			temp = temp.New(filename)
 		}
-		_, err = t.Funcs(funcMap).Parse(templates[filename])
+		_, err = temp.Funcs(t.funcMap).Parse(t.templates[filename])
 
 		// anyone template syntax error throw panic
 		if err != nil {
 			panic(err)
 		}
 	}
-	return t, err
+	return temp, err
 }
 
-func SetTemplateDir(dir string) {
+func (t *Templates) SetTemplateDir(dir string) {
 	exist := com.FileExist(dir)
 	if exist {
-		templatefolder = dir
+		t.templatefolder = dir
 	}
 }
 
 // add template function definition
-func AddTemplateFunc(functionName string, function interface{}) {
-	funcMap[functionName] = function
+func (t *Templates) AddTemplateFunc(functionName string, function interface{}) {
+	t.funcMap[functionName] = function
 }
 
 // test template function define
-func tplFunc(test string) string {
+func (t *Templates) tplFunc(test string) string {
 	return "template function, " + test
 }
