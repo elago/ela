@@ -8,9 +8,13 @@ import (
 	"time"
 )
 
-type Locale interface {
+type locale interface {
 	Language() string
 	Tr(string) string
+}
+
+type render interface {
+	ServeTemplate()
 }
 
 // RequestContext
@@ -21,7 +25,8 @@ type Context struct {
 	status    int
 	headerMap map[string]string
 	uriParams map[string]string
-	Locale
+	locale
+	render
 }
 
 func (ctx *Context) GetResponseWriter() ResponseWriter {
